@@ -49,13 +49,13 @@ variable "node_count" {
   default     = 1
 }
 
-variable "rpc_api_cidrs" {
-  description = "List of CIDRs to grant access to the rpc API."
+variable "guardian_api_cidrs" {
+  description = "List of CIDRs to grant access to the guardian API."
   default     = []
 }
 
-variable "rpc_api_security_groups" {
-  description = "List of security groups to grant access to the rpc API."
+variable "guardian_api_security_groups" {
+  description = "List of security groups to grant access to the guardian API."
   default     = []
 }
 

@@ -196,8 +196,8 @@ resource "aws_security_group_rule" "guardian_ssh" {
   cidr_blocks = ["0.0.0.0/0"]
 }
 
-resource "aws_security_group_rule" "guardian_rpc_cidr_access_http" {
-  count = "${length(var.rpc_api_cidrs) == 0 ? 0 : 1}"
+resource "aws_security_group_rule" "guardian_api_cidr_access_http" {
+  count = "${length(var.guardian_api_cidrs) == 0 ? 0 : 1}"
 
   security_group_id = "${aws_security_group.guardian.id}"
   type              = "ingress"
@@ -206,11 +206,11 @@ resource "aws_security_group_rule" "guardian_rpc_cidr_access_http" {
   to_port   = 80
   protocol  = "tcp"
 
-  cidr_blocks = "${var.rpc_api_cidrs}"
+  cidr_blocks = "${var.guardian_api_cidrs}"
 }
 
-resource "aws_security_group_rule" "guardian_rpc_security_group_access_http" {
-  count = "${length(var.rpc_api_security_groups)}"
+resource "aws_security_group_rule" "guardian_api_security_group_access_http" {
+  count = "${length(var.guardian_api_security_groups)}"
 
   security_group_id = "${aws_security_group.guardian.id}"
   type              = "ingress"
@@ -219,11 +219,11 @@ resource "aws_security_group_rule" "guardian_rpc_security_group_access_http" {
   to_port   = 80
   protocol  = "tcp"
 
-  source_security_group_id = "${element(var.rpc_api_security_groups, count.index)}"
+  source_security_group_id = "${element(var.guardian_api_security_groups, count.index)}"
 }
 
-resource "aws_security_group_rule" "guardian_rpc_cidr_access_https" {
-  count = "${local.using_https && length(var.rpc_api_cidrs) > 0 ? 1 : 0}"
+resource "aws_security_group_rule" "guardian_api_cidr_access_https" {
+  count = "${local.using_https && length(var.guardian_api_cidrs) > 0 ? 1 : 0}"
 
   security_group_id = "${aws_security_group.guardian.id}"
   type              = "ingress"
@@ -232,11 +232,11 @@ resource "aws_security_group_rule" "guardian_rpc_cidr_access_https" {
   to_port   = 443
   protocol  = "tcp"
 
-  cidr_blocks = "${var.rpc_api_cidrs}"
+  cidr_blocks = "${var.guardian_api_cidrs}"
 }
 
-resource "aws_security_group_rule" "guardian_rpc_security_group_access_https" {
-  count = "${local.using_https ? length(var.rpc_api_security_groups) : 0}"
+resource "aws_security_group_rule" "guardian_api_security_group_access_https" {
+  count = "${local.using_https ? length(var.guardian_api_security_groups) : 0}"
 
   security_group_id = "${aws_security_group.guardian.id}"
   type              = "ingress"
@@ -245,7 +245,7 @@ resource "aws_security_group_rule" "guardian_rpc_security_group_access_https" {
   to_port   = 443
   protocol  = "tcp"
 
-  source_security_group_id = "${element(var.rpc_api_security_groups, count.index)}"
+  source_security_group_id = "${element(var.guardian_api_security_groups, count.index)}"
 }
 
 resource "aws_security_group_rule" "guardian_egress" {

@@ -53,8 +53,8 @@ module "guardian" {
   cert_owner                     = "${var.cert_owner}"
   force_destroy_s3_buckets       = "${var.force_destroy_s3_buckets}"
   guardian_instance_type         = "${var.guardian_instance_type}"
-  rpc_api_cidrs                  = "${var.rpc_api_cidrs}"
-  rpc_api_security_groups        = "${var.rpc_api_security_groups}"
+  guardian_api_cidrs             = "${var.guardian_api_cidrs}"
+  guardian_api_security_groups   = "${var.guardian_api_security_groups}"
 
   # Variables sourced from the vault module
   vault_dns                = "${module.guardian_vault.vault_dns}"
