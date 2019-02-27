@@ -127,8 +127,7 @@ resource "aws_instance" "guardian" {
     inline = [
       "sudo apt-get -y update",
       "mkdir /opt/guardian/info",
-      "echo 'https://${var.vault_dns}:${var.vault_port}' > /opt/guardian/info/vault-url.txt",
-      "echo 'http://${var.quorum_dns}:${var.quorum_port}' > /opt/guardian/info/quorum-url.txt"
+      "echo 'https://${var.vault_dns}:${var.vault_port}' > /opt/guardian/info/vault-url.txt"
     ]
   }
 

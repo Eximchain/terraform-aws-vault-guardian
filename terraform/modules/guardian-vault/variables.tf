@@ -14,10 +14,6 @@ variable "guardian_app_iam_role" {
   description = "The IAM role used by the transaction executor"
 }
 
-variable "eximchain_node_iam_role" {
-  description = "The IAM role used by the transaction executor"
-}
-
 variable "aws_vpc" {
   description = "The VPC to create the vault in"
 }

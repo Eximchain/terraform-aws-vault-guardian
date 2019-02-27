@@ -158,16 +158,6 @@ variable "guardian_instance_type" {
   default     = "t2.medium"
 }
 
-variable "eximchain_node_ami" {
-  description = "AMI ID to use for eximchain node. If not set, will retrieve the latest version from Eximchain."
-  default     = ""
-}
-
-variable "eximchain_node_instance_type" {
-  description = "The EC2 instance type to use for transaction executor nodes"
-  default     = "t2.medium"
-}
-
 variable "vault_consul_ami" {
   description = "AMI ID to use for vault and consul servers. Defaults to getting the most recently built version from Eximchain"
   default     = ""

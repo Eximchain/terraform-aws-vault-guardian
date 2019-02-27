@@ -16,7 +16,7 @@ readonly VAULT_TLS_CERT_FILE="$VAULT_TLS_CERT_DIR/vault.crt.pem"
 readonly VAULT_TLS_KEY_FILE="$VAULT_TLS_CERT_DIR/vault.key.pem"
 
 # The variables below are filled in via Terraform interpolation
-/opt/vault/bin/generate-setup-vault.sh ${guardian_app_role} ${eximchain_node_role}
+/opt/vault/bin/generate-setup-vault.sh ${guardian_app_role}
 
 # Download vault certs from s3
 aws configure set s3.signature_version s3v4

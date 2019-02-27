@@ -130,7 +130,6 @@ data "template_file" "user_data_vault_cluster" {
     consul_cluster_tag_value  = "${module.consul_cluster.cluster_tag_value}"
     vault_cert_bucket         = "${aws_s3_bucket.vault_certs.bucket}"
     guardian_app_role         = "${var.guardian_app_iam_role}"
-    eximchain_node_role       = "${var.eximchain_node_iam_role}"
   }
 
   # user-data needs to download these objects

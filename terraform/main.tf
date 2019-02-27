@@ -79,10 +79,6 @@ module "guardian" {
   consul_cluster_tag_key   = "${module.guardian_vault.consul_cluster_tag_key}"
   consul_cluster_tag_value = "${module.guardian_vault.consul_cluster_tag_value}"
 
-  # Variables sourced from the eximchain node module
-  quorum_dns                         = "${module.eximchain_node.eximchain_node_dns}"
-  quorum_port                        = "${module.eximchain_node.eximchain_node_rpc_port}"
-
   aws_vpc = "${aws_vpc.guardian.id}"
 
   base_subnet_cidr = "${cidrsubnet(var.vpc_cidr, 2, 0)}"
@@ -106,7 +102,6 @@ module "guardian_vault" {
   cert_org_name = "${var.cert_org_name}"
 
   guardian_app_iam_role   = "${module.guardian.guardian_iam_role}"
-  eximchain_node_iam_role = "${module.eximchain_node.eximchain_node_iam_role}"
 
   force_destroy_s3_bucket = "${var.force_destroy_s3_buckets}"
 
@@ -118,56 +113,4 @@ module "guardian_vault" {
   vault_instance_type  = "${var.vault_instance_type}"
   consul_cluster_size  = "${var.consul_cluster_size}"
   consul_instance_type = "${var.consul_instance_type}"
-}
-
-module "eximchain_node" {
-  source = "github.com/eximchain/terraform-aws-eximchain-node.git//terraform/modules/eximchain-node"
-
-  aws_region         = "${var.aws_region}"
-  availability_zones = "${var.node_availability_zones}"
-
-  node_count = "${var.node_count}"
-
-  create_load_balancer       = true
-  use_internal_load_balancer = true
-
-  public_key    = "${var.public_key == "" ? join("", data.local_file.public_key.*.content) : var.public_key}"
-  # TODO: Don't make certs if we're using an external vault
-  cert_owner    = "${var.cert_owner}"
-  cert_org_name = "${var.cert_org_name}"
-
-  eximchain_node_ami           = "${var.eximchain_node_ami}"
-  eximchain_node_instance_type = "${var.eximchain_node_instance_type}"
-
-  aws_vpc = "${aws_vpc.guardian.id}"
-
-  base_subnet_cidr = "${cidrsubnet(var.vpc_cidr, 2, 2)}"
-
-  # Allow RPC from tx executor
-  rpc_security_groups     = ["${module.guardian.guardian_security_group}"]
-  num_rpc_security_groups = 1
-
-  # External Vault Parameters
-  vault_dns  = "${module.guardian_vault.vault_dns}"
-  vault_port = "${var.vault_port}"
-
-  vault_cert_bucket = "${module.guardian_vault.vault_cert_bucket_name}"
-
-  network_id = "${var.network_id}"
-
-  node_volume_size = "${var.node_volume_size}"
-
-  force_destroy_s3_bucket = "${var.force_destroy_s3_buckets}"
-
-  consul_cluster_tag_key   = "${module.guardian_vault.consul_cluster_tag_key}"
-  consul_cluster_tag_value = "${module.guardian_vault.consul_cluster_tag_value}"
-}
-
-# ---------------------------------------------------------------------------------------------------------------------
-# POLICIES
-# ---------------------------------------------------------------------------------------------------------------------
-# Allow Eximchain node to download vault certificates
-resource "aws_iam_role_policy_attachment" "vault_cert_access" {
-  role       = "${module.eximchain_node.eximchain_node_iam_role}"
-  policy_arn = "${module.guardian_vault.vault_cert_access_policy_arn}"
 }

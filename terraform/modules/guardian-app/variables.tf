@@ -30,10 +30,6 @@ variable "vault_dns" {
   description = "The DNS name that vault will be accessible on."
 }
 
-variable "quorum_dns" {
-  description = "The DNS name that a quorum node will be accessible on."
-}
-
 variable "vault_cert_bucket_name" {
   description = "The name of the S3 bucket holding the vault TLS certificates"
 }
@@ -65,11 +61,6 @@ variable "enable_https" {
 variable "vault_port" {
   description = "The port that vault will be accessible on."
   default     = 8200
-}
-
-variable "quorum_port" {
-  description = "The port that vault will be accessible on."
-  default     = 8545
 }
 
 variable "disable_authentication" {
