@@ -172,21 +172,6 @@ data "template_file" "user_data_guardian" {
 
     disable_authentication = "${var.disable_authentication}"
 
-    ethconnect_webhook_port        = "${var.ethconnect_webhook_port}"
-    ethconnect_always_manage_nonce = "${var.ethconnect_always_manage_nonce}"
-    ethconnect_max_in_flight       = "${var.ethconnect_max_in_flight}"
-    ethconnect_max_tx_wait_time    = "${var.ethconnect_max_tx_wait_time}"
-
-    ccloud_broker     = "${var.ccloud_broker}"
-    ccloud_api_key    = "${var.ccloud_api_key}"
-    ccloud_api_secret = "${var.ccloud_api_secret}"
-
-    mongo_connection_url      = "${var.mongo_connection_url}"
-    mongo_database_name       = "${var.mongo_database_name}"
-    mongo_collection_name     = "${var.mongo_collection_name}"
-    mongo_max_receipts        = "${var.mongo_max_receipts}"
-    mongo_query_limit         = "${var.mongo_query_limit}"
-
     enable_https        = "${var.enable_https}"
     using_custom_domain = "${local.using_custom_domain}"
     custom_domain       = "${local.custom_domain}"
@@ -263,32 +248,6 @@ resource "aws_security_group_rule" "guardian_rpc_security_group_access_https" {
   protocol  = "tcp"
 
   source_security_group_id = "${element(var.rpc_api_security_groups, count.index)}"
-}
-
-resource "aws_security_group_rule" "guardian_ethconnect_cidr_access" {
-  count = "${length(var.ethconnect_api_cidrs) == 0 ? 0 : 1}"
-
-  security_group_id = "${aws_security_group.guardian.id}"
-  type              = "ingress"
-
-  from_port = "${var.ethconnect_webhook_port}"
-  to_port   = "${var.ethconnect_webhook_port}"
-  protocol  = "tcp"
-
-  cidr_blocks = "${var.ethconnect_api_cidrs}"
-}
-
-resource "aws_security_group_rule" "guardian_ethconnect_security_group_access" {
-  count = "${length(var.ethconnect_api_security_groups)}"
-
-  security_group_id = "${aws_security_group.guardian.id}"
-  type              = "ingress"
-
-  from_port = "${var.ethconnect_webhook_port}"
-  to_port   = "${var.ethconnect_webhook_port}"
-  protocol  = "tcp"
-
-  source_security_group_id = "${element(var.ethconnect_api_security_groups, count.index)}"
 }
 
 resource "aws_security_group_rule" "guardian_egress" {

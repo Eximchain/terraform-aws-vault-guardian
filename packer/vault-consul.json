@@ -50,15 +50,10 @@
     "source": "vault-policies/guardian.hcl",
     "destination": "/tmp/guardian.hcl"
   },{
-    "type": "file",
-    "source": "vault-policies/eximchain-node.hcl",
-    "destination": "/tmp/eximchain-node.hcl"
-  },{
     "type": "shell",
     "inline": [
       "sudo mkdir /opt/vault/config/policies",
       "sudo mv /tmp/guardian.hcl /opt/vault/config/policies/",
-      "sudo mv /tmp/eximchain-node.hcl /opt/vault/config/policies/",
       "sudo chown vault:vault /opt/vault/config/policies/*",
       "sudo chmod 644 /opt/vault/config/policies/*"
     ]

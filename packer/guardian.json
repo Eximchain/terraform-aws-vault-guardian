@@ -54,10 +54,6 @@
     "scripts": [
       "provisioning-scripts/dir-setup.sh",
       "provisioning-scripts/golang.sh",
-      "provisioning-scripts/java.sh",
-      "provisioning-scripts/ccloud.sh",
-      "provisioning-scripts/porosity.sh",
-      "provisioning-scripts/quorum.sh",
       "provisioning-scripts/certbot.sh",
       "provisioning-scripts/guardian.sh"
     ]

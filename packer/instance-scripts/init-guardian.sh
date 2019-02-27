@@ -28,40 +28,6 @@ user=ubuntu
 environment=GOPATH=/opt/guardian/go" | sudo tee /etc/supervisor/conf.d/guardian-supervisor.conf
 }
 
-function generate_ethconnect_supervisor_config {
-  local readonly ETHCONNECT_SERVER_CONFIG="/opt/guardian/ethconnect-config.yml"
-  local readonly LOG_LEVEL="1"
-  echo "[program:ethconnect]
-command=/opt/guardian/go/bin/ethconnect server -f $ETHCONNECT_SERVER_CONFIG -d $LOG_LEVEL
-stdout_logfile=/opt/guardian/log/ethconnect-stdout.log
-stderr_logfile=/opt/guardian/log/ethconnect-error.log
-numprocs=1
-autostart=true
-autorestart=unexpected
-stopsignal=INT
-user=ubuntu
-environment=GOPATH=/opt/guardian/go" | sudo tee /etc/supervisor/conf.d/ethconnect-supervisor.conf
-}
-
-function ensure_ethconnect_topics_exist {
-  local readonly TOPIC_IN=$(cat /opt/guardian/info/ethconnect-topic-in.txt)
-  local readonly TOPIC_OUT=$(cat /opt/guardian/info/ethconnect-topic-out.txt)
-
-  local readonly TOPIC_LIST=$(wait_for_successful_command 'ccloud topic list')
-  local readonly TOPIC_IN_EXISTS=$(echo "$TOPIC_LIST" | grep $TOPIC_IN | wc -l)
-  local readonly TOPIC_OUT_EXISTS=$(echo "$TOPIC_LIST" | grep $TOPIC_OUT | wc -l)
-
-  if [ "$TOPIC_IN_EXISTS" == "0" ]
-  then
-    ccloud topic create $TOPIC_IN
-  fi
-
-  if [ "$TOPIC_OUT_EXISTS" == "0" ]
-  then
-    ccloud topic create $TOPIC_OUT
-  fi
-}
-
 function get_ssl_certs {
   local readonly ENABLE_HTTPS=$(cat /opt/guardian/info/enable-https.txt)
   if [ "$ENABLE_HTTPS" == "true" ]
@@ -76,7 +42,6 @@ function get_ssl_certs {
   fi
 }
 
-ensure_ethconnect_topics_exist
 get_ssl_certs
 
 # Generate singleton geth keypair for testing
@@ -92,8 +57,6 @@ wait_for_successful_command 'vault status'
 wait_for_successful_command 'vault auth -method=aws'
 
 wait_for_successful_command "vault write keys/singleton password=$GETH_PW address=$ADDRESS key=$PRIV_KEY"
-
-#generate_ethconnect_supervisor_config
 
 # Replace the config that runs this with one that runs the guardian itself
 generate_guardian_supervisor_config
