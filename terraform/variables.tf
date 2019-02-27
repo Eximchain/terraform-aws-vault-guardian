@@ -34,11 +34,6 @@ variable "cert_owner" {
   default     = "$USER"
 }
 
-variable "node_volume_size" {
-  description = "The size of the storage drive on the eximchain node"
-  default     = 50
-}
-
 variable "vault_port" {
   description = "The port that vault will be accessible on."
   default     = 8200
