@@ -10,20 +10,6 @@ variable "availability_zone" {
   description = "AWS availability zone to launch the transaction executor and eximchain node in"
 }
 
-variable "cert_owner" {
-  description = "The OS user to be made the owner of the local copy of the vault certificates. Should usually be set to the user operating the tool."
-}
-
-variable "network_id" {
-  description = "The network ID of the eximchain network to join"
-  default     = 513
-}
-
-variable "node_volume_size" {
-  description = "The size of the storage drive on the eximchain node"
-  default     = 50
-}
-
 # ---------------------------------------------------------------------------------------------------------------------
 # OPTIONAL PARAMETERS
 # These parameters have reasonable defaults.
@@ -41,6 +27,21 @@ variable "public_key" {
 variable "private_key" {
   description = "The private key that will be used to SSH the instances in this region. Will use the agent if empty"
   default     = ""
+}
+
+variable "cert_owner" {
+  description = "The OS user to be made the owner of the local copy of the vault certificates. Should usually be set to the user operating the tool."
+  default     = "$USER"
+}
+
+variable "network_id" {
+  description = "The network ID of the eximchain network to join"
+  default     = 513
+}
+
+variable "node_volume_size" {
+  description = "The size of the storage drive on the eximchain node"
+  default     = 50
 }
 
 variable "vault_port" {
