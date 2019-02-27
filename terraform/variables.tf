@@ -34,11 +34,6 @@ variable "cert_owner" {
   default     = "$USER"
 }
 
-variable "network_id" {
-  description = "The network ID of the eximchain network to join"
-  default     = 513
-}
-
 variable "node_volume_size" {
   description = "The size of the storage drive on the eximchain node"
   default     = 50
