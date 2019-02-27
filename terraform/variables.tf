@@ -39,11 +39,6 @@ variable "vault_port" {
   default     = 8200
 }
 
-variable "disable_authentication" {
-  description = "Whether or not the tx executor should disable token authentication. Should be a either 'true' or 'false' in string form."
-  default     = "false"
-}
-
 variable "node_availability_zones" {
   description = "AWS availability zones to distribute the eximchain nodes amongst. Must name at least two. Defaults to distributing nodes across AZs."
   default     = []

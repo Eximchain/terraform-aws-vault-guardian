@@ -16,7 +16,6 @@ source $BASH_PROFILE_FILE
 sleep 60
 
 function write_data {
-  echo "${disable_authentication}" | sudo tee /opt/guardian/info/disable-authentication.txt > /dev/null 2>&1
   echo "${custom_domain}" | sudo tee /opt/guardian/info/custom-domain.txt > /dev/null 2>&1
   echo "${enable_https}" | sudo tee /opt/guardian/info/enable-https.txt > /dev/null 2>&1
 }

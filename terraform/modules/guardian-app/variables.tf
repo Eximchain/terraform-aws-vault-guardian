@@ -63,11 +63,6 @@ variable "vault_port" {
   default     = 8200
 }
 
-variable "disable_authentication" {
-  description = "Whether or not the tx executor should disable token authentication. Should be a either 'true' or 'false' in string form."
-  default     = "false"
-}
-
 variable "private_key" {
   description = "The private key that will be used to SSH the instances in this region. Will use the agent if empty"
   default     = ""

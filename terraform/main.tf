@@ -51,7 +51,6 @@ module "guardian" {
   aws_region                     = "${var.aws_region}"
   availability_zone              = "${var.availability_zone}"
   cert_owner                     = "${var.cert_owner}"
-  disable_authentication         = "${var.disable_authentication}"
   force_destroy_s3_buckets       = "${var.force_destroy_s3_buckets}"
   guardian_instance_type         = "${var.guardian_instance_type}"
   rpc_api_cidrs                  = "${var.rpc_api_cidrs}"
