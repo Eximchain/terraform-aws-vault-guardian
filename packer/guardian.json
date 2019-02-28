@@ -54,17 +54,8 @@
     "scripts": [
       "provisioning-scripts/dir-setup.sh",
       "provisioning-scripts/golang.sh",
-      "provisioning-scripts/certbot.sh",
-      "provisioning-scripts/guardian.sh"
+      "provisioning-scripts/certbot.sh"
     ]
-  },{
-    "type": "file",
-    "source": "instance-scripts/generate-run-init-guardian",
-    "destination": "/tmp/generate-run-init-guardian"
-  },{
-    "type": "file",
-    "source": "instance-scripts/init-guardian.sh",
-    "destination": "/tmp/init-guardian.sh"
   },{
     "type": "file",
     "source": "instance-scripts/revoke-https-cert.sh",
@@ -72,8 +63,6 @@
   },{
     "type": "shell",
     "inline": [
-      "sudo mv /tmp/generate-run-init-guardian /opt/guardian/bin/",
-      "sudo mv /tmp/init-guardian.sh /opt/guardian/bin/",
       "sudo mv /tmp/revoke-https-cert.sh /opt/guardian/bin/",
       "sudo chmod 744 /opt/guardian/bin/*"
     ]

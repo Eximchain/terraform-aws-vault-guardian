@@ -15,6 +15,17 @@ source $BASH_PROFILE_FILE
 
 sleep 60
 
+function wait_for_successful_command {
+    local COMMAND=$1
+
+    $COMMAND
+    until [ $? -eq 0 ]
+    do
+        sleep 5
+        $COMMAND
+    done
+}
+
 function write_data {
   echo "${custom_domain}" | sudo tee /opt/guardian/info/custom-domain.txt > /dev/null 2>&1
 }
@@ -38,6 +49,16 @@ function write_nginx_config {
   }" | sudo tee /etc/nginx/sites-available/guardian > /dev/null 2>&1
   sudo ln -s /etc/nginx/sites-available/guardian /etc/nginx/sites-enabled/guardian
   sudo service nginx restart
+}
+
+function get_ssl_certs {
+  # LetsEncrypt requires a webmaster email in case of issues.  Must specify custom domain
+  # we want certs for.  Note that we only use custom b/c they don't give certs to .amazonaws.com
+  # domains.  Including the --cert-name option ensures that we know what directory the keys
+  # are placed in, and it tells LetsEncrypt which nginx config to update.
+  local readonly CERT_WEBMASTER="louis@eximchain.com"
+  local readonly DOMAIN=$(cat /opt/guardian/info/custom-domain.txt)
+  wait_for_successful_command "sudo certbot --cert-name guardian --nginx --noninteractive --agree-tos -m $CERT_WEBMASTER -d $DOMAIN"
 }
 
 function download_vault_certs {
@@ -69,9 +90,7 @@ exec > >(tee /var/log/user-data.log|logger -t user-data -s 2>/dev/console) 2>&1
 download_vault_certs
 write_data
 write_nginx_config
+get_ssl_certs
 
 # These variables are passed in via Terraform template interpolation
 /opt/consul/bin/run-consul --client --cluster-tag-key "${consul_cluster_tag_key}" --cluster-tag-value "${consul_cluster_tag_value}"
-
-/opt/guardian/bin/generate-run-init-guardian ${vault_dns} ${vault_port}
-/opt/guardian/bin/run-init-guardian
