@@ -33,15 +33,12 @@ function write_data {
 function write_nginx_config {
   sudo rm -rf /etc/nginx/sites-enabled/default
   local readonly HOSTNAME="$(curl http://169.254.169.254/latest/meta-data/public-hostname)"
-  local readonly HTTP_PORT="80"
 
   local readonly SERVER_NAME="${custom_domain} $HOSTNAME"
 
-  # TODO: Make HTTPS Only
   # TODO: End-to-End TLS with Vault
   echo "
   server {
-    listen $HTTP_PORT;
     server_name $SERVER_NAME;
     location / {
       proxy_pass \"$VAULT_ADDR\";
@@ -58,7 +55,7 @@ function get_ssl_certs {
   # are placed in, and it tells LetsEncrypt which nginx config to update.
   local readonly CERT_WEBMASTER="louis@eximchain.com"
   local readonly DOMAIN=$(cat /opt/guardian/info/custom-domain.txt)
-  wait_for_successful_command "sudo certbot --cert-name guardian --nginx --noninteractive --agree-tos -m $CERT_WEBMASTER -d $DOMAIN"
+  wait_for_successful_command "sudo certbot --cert-name guardian --nginx --noninteractive --agree-tos --redirect -m $CERT_WEBMASTER -d $DOMAIN"
 }
 
 function download_vault_certs {
