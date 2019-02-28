@@ -10,6 +10,14 @@ variable "availability_zone" {
   description = "AWS availability zone to launch the transaction executor and eximchain node in"
 }
 
+variable "subdomain_name" {
+  description = "Required; the [value] in the final '[value].[root_domain]' DNS name."
+}
+
+variable "root_domain" {
+  description = "Required; the [root_domain] in the final '[value].[root_domain]' DNS name, should end in a TLD (e.g. eximchain.com)."
+}
+
 # ---------------------------------------------------------------------------------------------------------------------
 # OPTIONAL PARAMETERS
 # These parameters have reasonable defaults.
@@ -107,14 +115,4 @@ variable "cert_org_name" {
 variable "vpc_cidr" {
   description = "The cidr range to use for the VPC."
   default     = "10.0.0.0/16"
-}
-
-variable "subdomain_name" {
-  description = "Required if using HTTPS; the [value] in the final '[value].[root_domain]` DNS name."
-  default     = ""
-}
-
-variable "root_domain" {
-  description = "Required if using HTTPS; the [root_domain] in the final '[value].[root_domain]' DNS name, should end in a TLD (e.g. eximchain.com)."
-  default     = ""
 }

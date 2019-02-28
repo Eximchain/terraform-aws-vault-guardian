@@ -23,19 +23,17 @@ function write_nginx_config {
   sudo rm -rf /etc/nginx/sites-enabled/default
   local readonly HOSTNAME="$(curl http://169.254.169.254/latest/meta-data/public-hostname)"
   local readonly HTTP_PORT="80"
-  local readonly GOKIT_URL="http://localhost:8080"
-  if [ "${using_custom_domain}" == "true" ]
-  then
-    local readonly SERVER_NAME="${custom_domain} $HOSTNAME"
-  else
-    local readonly SERVER_NAME="$HOSTNAME"
-  fi
+
+  local readonly SERVER_NAME="${custom_domain} $HOSTNAME"
+
+  # TODO: Make HTTPS Only
+  # TODO: End-to-End TLS with Vault
   echo "
   server {
     listen $HTTP_PORT;
     server_name $SERVER_NAME;
     location / {
-      proxy_pass \"$GOKIT_URL\";
+      proxy_pass \"$VAULT_ADDR\";
     }
   }" | sudo tee /etc/nginx/sites-available/guardian > /dev/null 2>&1
   sudo ln -s /etc/nginx/sites-available/guardian /etc/nginx/sites-enabled/guardian

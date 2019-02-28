@@ -72,18 +72,14 @@ resource "aws_subnet" "guardian" {
 # DNS RECORD
 # ---------------------------------------------------------------------------------------------------------------------
 locals {
-  using_custom_domain = "${var.subdomain_name != "" && var.root_domain != ""}"
   custom_domain       = "${var.subdomain_name}.${var.root_domain}"
 }
 
 data "aws_route53_zone" "domain" {
-  count = "${local.using_custom_domain ? 1 : 0}"
   name  = "${var.root_domain}."
 }
 
 resource "aws_route53_record" "guardian" {
-  count = "${local.using_custom_domain ? 1 : 0}"
-
   zone_id                  = "${data.aws_route53_zone.domain.zone_id}"
   name                     = "${local.custom_domain}"
   type                     = "A"
@@ -169,7 +165,6 @@ data "template_file" "user_data_guardian" {
 
     vault_cert_bucket = "${var.vault_cert_bucket_name}"
 
-    using_custom_domain = "${local.using_custom_domain}"
     custom_domain       = "${local.custom_domain}"
   }
 }
@@ -221,7 +216,7 @@ resource "aws_security_group_rule" "guardian_api_security_group_access_http" {
 }
 
 resource "aws_security_group_rule" "guardian_api_cidr_access_https" {
-  count = "${local.using_https && length(var.guardian_api_cidrs) > 0 ? 1 : 0}"
+  count = "${length(var.guardian_api_cidrs) > 0 ? 1 : 0}"
 
   security_group_id = "${aws_security_group.guardian.id}"
   type              = "ingress"
@@ -234,7 +229,7 @@ resource "aws_security_group_rule" "guardian_api_cidr_access_https" {
 }
 
 resource "aws_security_group_rule" "guardian_api_security_group_access_https" {
-  count = "${local.using_https ? length(var.guardian_api_security_groups) : 0}"
+  count = "${length(var.guardian_api_security_groups)}"
 
   security_group_id = "${aws_security_group.guardian.id}"
   type              = "ingress"
