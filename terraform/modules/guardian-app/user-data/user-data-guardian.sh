@@ -17,7 +17,6 @@ sleep 60
 
 function write_data {
   echo "${custom_domain}" | sudo tee /opt/guardian/info/custom-domain.txt > /dev/null 2>&1
-  echo "${enable_https}" | sudo tee /opt/guardian/info/enable-https.txt > /dev/null 2>&1
 }
 
 function write_nginx_config {

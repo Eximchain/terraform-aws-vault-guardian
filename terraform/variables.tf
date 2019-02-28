@@ -109,11 +109,6 @@ variable "vpc_cidr" {
   default     = "10.0.0.0/16"
 }
 
-variable "enable_https" {
-  description = "Boolean string controlling whether to enable HTTPS connections.  If true, subdomain_name and root_domain are required."
-  default     = "false"
-}
-
 variable "subdomain_name" {
   description = "Required if using HTTPS; the [value] in the final '[value].[root_domain]` DNS name."
   default     = ""

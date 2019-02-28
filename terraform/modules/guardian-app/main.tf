@@ -74,7 +74,6 @@ resource "aws_subnet" "guardian" {
 locals {
   using_custom_domain = "${var.subdomain_name != "" && var.root_domain != ""}"
   custom_domain       = "${var.subdomain_name}.${var.root_domain}"
-  using_https         = "${var.enable_https == "true"}"
 }
 
 data "aws_route53_zone" "domain" {
@@ -170,7 +169,6 @@ data "template_file" "user_data_guardian" {
 
     vault_cert_bucket = "${var.vault_cert_bucket_name}"
 
-    enable_https        = "${var.enable_https}"
     using_custom_domain = "${local.using_custom_domain}"
     custom_domain       = "${local.custom_domain}"
   }

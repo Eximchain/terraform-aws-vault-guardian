@@ -70,7 +70,6 @@ module "guardian" {
 
   guardian_ami = "${var.guardian_ami}"
 
-  enable_https   = "${var.enable_https}"
   subdomain_name = "${var.subdomain_name}"
   root_domain    = "${var.root_domain}"
 }
