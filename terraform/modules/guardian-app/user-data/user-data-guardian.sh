@@ -40,7 +40,10 @@ function write_nginx_config {
   echo "
   server {
     server_name $SERVER_NAME;
-    location / {
+    location /v1/guardian/login {
+      proxy_pass \"$VAULT_ADDR\";
+    }
+    location /v1/guardian/sign {
       proxy_pass \"$VAULT_ADDR\";
     }
   }" | sudo tee /etc/nginx/sites-available/guardian > /dev/null 2>&1
