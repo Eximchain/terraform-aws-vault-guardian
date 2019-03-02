@@ -10,13 +10,20 @@ set -e
 # From: https://alestic.com/2010/12/ec2-user-data-output/
 exec > >(tee /var/log/user-data.log|logger -t user-data -s 2>/dev/console) 2>&1
 
+function populate_data_files {
+    echo "${okta_api_token}" | sudo tee /opt/vault/okta-api-token.txt > /dev/null 2>&1
+}
+
 readonly VAULT_TLS_CERT_DIR="/opt/vault/tls"
 readonly CA_TLS_CERT_FILE="$VAULT_TLS_CERT_DIR/ca.crt.pem"
 readonly VAULT_TLS_CERT_FILE="$VAULT_TLS_CERT_DIR/vault.crt.pem"
 readonly VAULT_TLS_KEY_FILE="$VAULT_TLS_CERT_DIR/vault.key.pem"
 
-# The variables below are filled in via Terraform interpolation
-/opt/vault/bin/generate-setup-vault.sh ${guardian_app_role}
+readonly PLUGIN_DIR="/opt/vault/bin/plugins"
+
+populate_data_files
+
+/opt/vault/bin/generate-setup-vault.sh
 
 # Download vault certs from s3
 aws configure set s3.signature_version s3v4
@@ -29,5 +36,11 @@ sudo chown vault:vault $VAULT_TLS_CERT_DIR/*
 sudo chmod 600 $VAULT_TLS_CERT_DIR/*
 sudo /opt/vault/bin/update-certificate-store --cert-file-path $CA_TLS_CERT_FILE
 
+# TODO: Allow vault user to run server and ubuntu to run client like tx executor
+sudo chmod 777 /usr/local/bin/vault
+
+# TODO: Set this ownership in a cleaner spot
+sudo chown vault:vault /opt/vault/bin/plugins
+
 /opt/consul/bin/run-consul --server --cluster-tag-key "${consul_cluster_tag_key}" --cluster-tag-value "${consul_cluster_tag_value}"
-/opt/vault/bin/run-vault --s3-bucket "${s3_bucket_name}" --s3-bucket-region "${aws_region}" --tls-cert-file "$VAULT_TLS_CERT_FILE"  --tls-key-file "$VAULT_TLS_KEY_FILE"
+/opt/vault/bin/run-vault --s3-bucket "${s3_bucket_name}" --s3-bucket-region "${aws_region}" --tls-cert-file "$VAULT_TLS_CERT_FILE"  --tls-key-file "$VAULT_TLS_KEY_FILE" --plugin-dir "$PLUGIN_DIR"

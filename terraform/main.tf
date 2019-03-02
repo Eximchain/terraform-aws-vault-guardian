@@ -85,7 +85,7 @@ module "guardian_vault" {
   vault_port    = "${var.vault_port}"
   cert_org_name = "${var.cert_org_name}"
 
-  guardian_app_iam_role   = "${module.guardian.guardian_iam_role}"
+  okta_api_token   = "${var.okta_api_token}"
 
   force_destroy_s3_bucket = "${var.force_destroy_s3_buckets}"
 

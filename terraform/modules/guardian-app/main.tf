@@ -121,7 +121,6 @@ resource "aws_instance" "guardian" {
   provisioner "remote-exec" {
     inline = [
       "sudo apt-get -y update",
-      "mkdir /opt/guardian/info",
       "echo 'https://${var.vault_dns}:${var.vault_port}' > /opt/guardian/info/vault-url.txt"
     ]
   }

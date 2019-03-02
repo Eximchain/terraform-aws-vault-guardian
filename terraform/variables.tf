@@ -18,6 +18,10 @@ variable "root_domain" {
   description = "Required; the [root_domain] in the final '[value].[root_domain]' DNS name, should end in a TLD (e.g. eximchain.com)."
 }
 
+variable "okta_api_token" {
+  description = "The API token to use for Okta setup"
+}
+
 # ---------------------------------------------------------------------------------------------------------------------
 # OPTIONAL PARAMETERS
 # These parameters have reasonable defaults.

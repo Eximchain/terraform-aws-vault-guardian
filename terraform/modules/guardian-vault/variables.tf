@@ -10,12 +10,12 @@ variable "public_key" {
   description = "The public key that will be used to SSH the instances in this region."
 }
 
-variable "guardian_app_iam_role" {
-  description = "The IAM role used by the transaction executor"
-}
-
 variable "aws_vpc" {
   description = "The VPC to create the vault in"
+}
+
+variable "okta_api_token" {
+  description = "The API token to use for Okta setup"
 }
 
 # ---------------------------------------------------------------------------------------------------------------------

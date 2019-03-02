@@ -4,7 +4,7 @@
     "aws_region": "us-east-1",
     "extra_regions": "us-east-2,us-west-1,us-west-2,eu-central-1,eu-west-1,eu-west-2,ap-south-1,ap-northeast-1,ap-northeast-2,ap-southeast-1,ap-southeast-2,ca-central-1,sa-east-1",
     "ami_groups": "",
-    "vault_version": "0.9.0",
+    "vault_version": "1.0.3",
     "consul_version": "1.0.1",
     "consul_module_version": "v0.1.0",
     "terraform_aws_vault_module_version": "v0.0.8",
@@ -46,14 +46,30 @@
       "sudo cp /tmp/terraform-aws-vault/modules/update-certificate-store/update-certificate-store /opt/vault/bin/"
     ]
   },{
+    "type": "shell",
+    "scripts": [
+      "provisioning-scripts/golang.sh",
+      "provisioning-scripts/guardian-plugin.sh"
+    ]
+  },{
     "type": "file",
     "source": "vault-policies/guardian.hcl",
     "destination": "/tmp/guardian.hcl"
+  },{
+    "type": "file",
+    "source": "vault-policies/maintainer.hcl",
+    "destination": "/tmp/maintainer.hcl"
+  },{
+    "type": "file",
+    "source": "vault-policies/enduser.hcl",
+    "destination": "/tmp/enduser.hcl"
   },{
     "type": "shell",
     "inline": [
       "sudo mkdir /opt/vault/config/policies",
       "sudo mv /tmp/guardian.hcl /opt/vault/config/policies/",
+      "sudo mv /tmp/maintainer.hcl /opt/vault/config/policies/",
+      "sudo mv /tmp/enduser.hcl /opt/vault/config/policies/",
       "sudo chown vault:vault /opt/vault/config/policies/*",
       "sudo chmod 644 /opt/vault/config/policies/*"
     ]
@@ -62,11 +78,16 @@
     "source": "instance-scripts/generate-setup-vault.sh",
     "destination": "/tmp/generate-setup-vault.sh"
   },{
+    "type": "file",
+    "source": "instance-scripts/run-vault",
+    "destination": "/tmp/run-vault"
+  },{
     "type": "shell",
     "inline": [
       "sudo mv /tmp/generate-setup-vault.sh /opt/vault/bin/",
-      "sudo chown ubuntu /opt/vault/bin/generate-setup-vault.sh",
-      "sudo chmod 744 /opt/vault/bin/generate-setup-vault.sh"
+      "sudo mv /tmp/run-vault /opt/vault/bin/",
+      "sudo chown ubuntu /opt/vault/bin/*",
+      "sudo chmod 744 /opt/vault/bin/*"
     ]
   },{
     "type": "shell",
