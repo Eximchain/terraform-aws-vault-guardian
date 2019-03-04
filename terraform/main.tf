@@ -93,6 +93,8 @@ module "guardian_vault" {
 
   base_subnet_cidr = "${cidrsubnet(var.vpc_cidr, 2, 1)}"
 
+  vault_log_level = "${var.vault_log_level}"
+
   vault_cluster_size   = "${var.vault_cluster_size}"
   vault_instance_type  = "${var.vault_instance_type}"
   consul_cluster_size  = "${var.consul_cluster_size}"

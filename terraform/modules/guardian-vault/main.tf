@@ -131,6 +131,7 @@ data "template_file" "user_data_vault_cluster" {
     vault_cert_bucket         = "${aws_s3_bucket.vault_certs.bucket}"
     okta_api_token            = "${var.okta_api_token}"
     vault_api_addr            = "${aws_lb.guardian_vault.dns_name}"
+    vault_log_level           = "${var.vault_log_level}"
   }
 
   # user-data needs to download these objects

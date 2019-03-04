@@ -76,3 +76,8 @@ variable "base_subnet_cidr" {
   description = "The cidr range to use for subnets."
   default     = "10.0.0.0/16"
 }
+
+variable "vault_log_level" {
+  description = "Log level for the vault process"
+  default     = "info"
+}
