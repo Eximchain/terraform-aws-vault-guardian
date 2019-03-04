@@ -1,7 +1,7 @@
 provider "aws" {
   version = "~> 1.5"
 
-  region  = "${var.aws_region}"
+  region = "${var.aws_region}"
 }
 
 provider "local" {
@@ -85,7 +85,7 @@ module "guardian_vault" {
   vault_port    = "${var.vault_port}"
   cert_org_name = "${var.cert_org_name}"
 
-  okta_api_token   = "${var.okta_api_token}"
+  okta_api_token = "${var.okta_api_token}"
 
   force_destroy_s3_bucket = "${var.force_destroy_s3_buckets}"
 
