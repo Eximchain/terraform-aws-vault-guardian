@@ -43,4 +43,4 @@ sudo chmod 777 /usr/local/bin/vault
 sudo chown vault:vault /opt/vault/bin/plugins
 
 /opt/consul/bin/run-consul --server --cluster-tag-key "${consul_cluster_tag_key}" --cluster-tag-value "${consul_cluster_tag_value}"
-/opt/vault/bin/run-vault --s3-bucket "${s3_bucket_name}" --s3-bucket-region "${aws_region}" --log-level debug --tls-cert-file "$VAULT_TLS_CERT_FILE"  --tls-key-file "$VAULT_TLS_KEY_FILE" --plugin-dir "$PLUGIN_DIR"
+/opt/vault/bin/run-vault --s3-bucket "${s3_bucket_name}" --s3-bucket-region "${aws_region}"  --api-addr "${vault_api_addr}" --log-level debug --tls-cert-file "$VAULT_TLS_CERT_FILE"  --tls-key-file "$VAULT_TLS_KEY_FILE" --plugin-dir "$PLUGIN_DIR"
