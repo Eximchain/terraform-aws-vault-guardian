@@ -110,8 +110,14 @@ function generate_vault_config {
   local readonly plugin_directory="$9"
   local readonly config_path="$config_dir/$VAULT_CONFIG_FILE"
 
+  local public_api_addr="${10}"
+
   local instance_ip_address
   instance_ip_address=$(get_instance_ip_address)
+  if [ "$public_api_addr" == "" ]
+  then
+    public_api_addr="$instance_ip_address"
+  fi
 
   log_info "Creating default Vault config file in $config_path"
   # TODO: Enable mlock
@@ -138,6 +144,9 @@ listener "tcp" {
 }
 plugin_directory = "$plugin_directory"
 disable_mlock = true
+
+api_addr = "https://$public_api_addr:$port"
+cluster_addr = "https://$public_api_addr:$cluster_port"
 EOF
   chown "$user:$user" "$config_path"
 }
@@ -189,6 +198,7 @@ function run {
   local log_level="$DEFAULT_LOG_LEVEL"
   local user=""
   local skip_vault_config="false"
+  local api_addr=""
   local all_args=()
 
   while [[ $# > 0 ]]; do
@@ -246,6 +256,11 @@ function run {
         plugin_dir="$2"
         shift
         ;;
+      --api-addr)
+        assert_not_empty "$key" "$2"
+        api_addr="$2"
+        shift
+        ;;
       --user)
         assert_not_empty "$key" "$2"
         user="$2"
@@ -301,7 +316,7 @@ function run {
   if [[ "$skip_vault_config" == "true" ]]; then
     log_info "The --skip-vault-config flag is set, so will not generate a default Vault config file."
   else
-    generate_vault_config "$tls_cert_file" "$tls_key_file" "$port" "$cluster_port" "$config_dir" "$user" "$s3_bucket" "$s3_bucket_region" "$plugin_dir"
+    generate_vault_config "$tls_cert_file" "$tls_key_file" "$port" "$cluster_port" "$config_dir" "$user" "$s3_bucket" "$s3_bucket_region" "$plugin_dir" "$api_addr"
   fi
 
   generate_supervisor_config "$SUPERVISOR_CONFIG_PATH" "$config_dir" "$bin_dir" "$log_dir" "$log_level" "$user"
