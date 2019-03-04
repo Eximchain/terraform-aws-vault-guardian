@@ -56,7 +56,7 @@ SECRET_ID=\$(vault write -force auth/approle/role/guardian/secret-id | awk 'FNR 
 vault write guardian/authorize secret_id=\$SECRET_ID okta_url=\$OKTA_ORG okta_token=\$OKTA_TOKEN
 
 # Revoke the root token to reduce security risk
-vault token-revoke \$ROOT_TOKEN
+vault token revoke \$ROOT_TOKEN
 EOF
 
 # Give permission to run the script
