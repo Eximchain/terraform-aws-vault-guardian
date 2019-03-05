@@ -2,8 +2,12 @@ path "auth/okta/users/*" {
     capabilities = ["read", "create", "update"]
 }
 
-path "auth/token/lookup" {
+path "auth/token/lookup-accessor" {
     capabilities = ["read", "create", "update"]
+}
+
+path "auth/token/create/guardian-enduser" {
+    capabilities = ["create", "update"]
 }
 
 path "identity/lookup/entity" {
