@@ -98,6 +98,12 @@ function assert_is_installed {
   fi
 }
 
+# For more info, see: https://www.vaultproject.io/docs/configuration/#disable_mlock
+function configure_mlock {
+  log_info "Giving Vault permission to use the mlock syscall"
+  sudo setcap cap_ipc_lock=+ep $(readlink -f $(which vault))
+}
+
 function generate_vault_config {
   local readonly tls_cert_file="$1"
   local readonly tls_key_file="$2"
@@ -120,7 +126,7 @@ function generate_vault_config {
   fi
 
   log_info "Creating default Vault config file in $config_path"
-  # TODO: Enable mlock
+
   cat > "$config_path" <<EOF
 storage "s3" {
   bucket = "$s3_bucket"
@@ -143,7 +149,6 @@ listener "tcp" {
   tls_key_file    = "$tls_key_file"
 }
 plugin_directory = "$plugin_directory"
-disable_mlock = true
 
 api_addr = "https://$public_api_addr:$port"
 cluster_addr = "https://$public_api_addr:$cluster_port"
@@ -174,6 +179,7 @@ EOF
 }
 
 function start_vault {
+  configure_mlock
   log_info "Reloading Supervisor config and starting Vault"
   supervisorctl reread
   supervisorctl update
