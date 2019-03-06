@@ -7,7 +7,6 @@
     "vault_version": "1.0.3",
     "consul_version": "1.0.1",
     "consul_module_version": "v0.1.0",
-    "terraform_aws_vault_module_version": "v0.0.8",
     "ca_public_key_path": "certs/ca-cert.pub",
     "tls_public_key_path": "certs/cert.pub",
     "tls_private_key_path": "certs/cert.pem"
@@ -39,11 +38,27 @@
     "script": "provisioning-scripts/build-deps.sh",
     "pause_before": "30s"
   },{
+    "type": "file",
+    "source": "instance-scripts/install-vault",
+    "destination": "/tmp/install-vault"
+  },{
+    "type": "file",
+    "source": "instance-scripts/update-certificate-store",
+    "destination": "/tmp/update-certificate-store"
+  },{
+    "type": "file",
+    "source": "instance-scripts/supervisord.conf",
+    "destination": "/tmp/supervisord.conf"
+  },{
+    "type": "file",
+    "source": "instance-scripts/run-vault",
+    "destination": "/tmp/run-vault"
+  },{
     "type": "shell",
     "inline": [
-      "git clone --branch {{user `terraform_aws_vault_module_version`}} https://github.com/hashicorp/terraform-aws-vault.git /tmp/terraform-aws-vault",
-      "/tmp/terraform-aws-vault/modules/install-vault/install-vault --version {{user `vault_version`}}",
-      "sudo cp /tmp/terraform-aws-vault/modules/update-certificate-store/update-certificate-store /opt/vault/bin/"
+      "sudo chmod 555 /tmp/install-vault",
+      "/tmp/install-vault --version {{user `vault_version`}}",
+      "sudo cp /tmp/update-certificate-store /opt/vault/bin/"
     ]
   },{
     "type": "shell",
@@ -78,14 +93,9 @@
     "source": "instance-scripts/generate-setup-vault.sh",
     "destination": "/tmp/generate-setup-vault.sh"
   },{
-    "type": "file",
-    "source": "instance-scripts/run-vault",
-    "destination": "/tmp/run-vault"
-  },{
     "type": "shell",
     "inline": [
       "sudo mv /tmp/generate-setup-vault.sh /opt/vault/bin/",
-      "sudo mv /tmp/run-vault /opt/vault/bin/",
       "sudo chown ubuntu /opt/vault/bin/*",
       "sudo chmod 744 /opt/vault/bin/*"
     ]
