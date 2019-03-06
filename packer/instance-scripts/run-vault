@@ -100,8 +100,12 @@ function assert_is_installed {
 
 # For more info, see: https://www.vaultproject.io/docs/configuration/#disable_mlock
 function configure_mlock {
+  local readonly guardian_plugin_path="/opt/vault/bin/plugins/guardian-plugin"
+
   log_info "Giving Vault permission to use the mlock syscall"
   sudo setcap cap_ipc_lock=+ep $(readlink -f $(which vault))
+  log_info "Giving vault-guardian plugin permission to use the mlock syscall"
+  sudo setcap cap_ipc_lock=+ep $(readlink -f $guardian_plugin_path)
 }
 
 function generate_vault_config {
