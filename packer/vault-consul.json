@@ -58,7 +58,8 @@
     "inline": [
       "sudo chmod 555 /tmp/install-vault",
       "/tmp/install-vault --version {{user `vault_version`}}",
-      "sudo cp /tmp/update-certificate-store /opt/vault/bin/"
+      "sudo cp /tmp/update-certificate-store /opt/vault/bin/",
+      "sudo chmod 744 /opt/vault/bin/update-certificate-store"
     ]
   },{
     "type": "shell",
@@ -96,8 +97,8 @@
     "type": "shell",
     "inline": [
       "sudo mv /tmp/generate-setup-vault.sh /opt/vault/bin/",
-      "sudo chown ubuntu /opt/vault/bin/*",
-      "sudo chmod 744 /opt/vault/bin/*"
+      "sudo chown ubuntu /opt/vault/bin/generate-setup-vault.sh",
+      "sudo chmod 744 /opt/vault/bin/generate-setup-vault.sh"
     ]
   },{
     "type": "shell",
