@@ -31,7 +31,8 @@ sudo cp build/guardian-plugin $PLUGIN_DIR/
 
 # Set permissions on plugin library dir
 sudo chown vault:vault -R $PLUGIN_DIR
-sudo chmod 644 $PLUGIN_DIR
+sudo chmod 755 $PLUGIN_DIR
+sudo chmod 544 $PLUGIN_DIR/guardian-plugin
 
 # Remove source code
 cd ..

@@ -36,9 +36,5 @@ sudo chown vault:vault $VAULT_TLS_CERT_DIR/*
 sudo chmod 600 $VAULT_TLS_CERT_DIR/*
 sudo /opt/vault/bin/update-certificate-store --cert-file-path $CA_TLS_CERT_FILE
 
-# TODO: Set this ownership in a cleaner spot
-sudo chown vault:vault /opt/vault/bin/plugins
-sudo chmod 755 /opt/vault/bin/plugins
-
 /opt/consul/bin/run-consul --server --cluster-tag-key "${consul_cluster_tag_key}" --cluster-tag-value "${consul_cluster_tag_value}"
 /opt/vault/bin/run-vault --s3-bucket "${s3_bucket_name}" --s3-bucket-region "${aws_region}"  --api-addr "${vault_api_addr}" --log-level "${vault_log_level}" --tls-cert-file "$VAULT_TLS_CERT_FILE"  --tls-key-file "$VAULT_TLS_KEY_FILE" --plugin-dir "$PLUGIN_DIR"
