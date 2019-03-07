@@ -46,7 +46,7 @@ vault write auth/okta/groups/vault-guardian-endusers policies=enduser
 vault write auth/okta/groups/vault-guardian-maintainers policies=maintainer
 
 # Create guardian-enduser token role for single-sign tokens
-vault write auth/token/roles/guardian-enduser allowed_policies="enduser" orphan=true renewable=false
+vault write auth/token/roles/guardian-enduser allowed_policies=enduser orphan=true renewable=false
 
 # Create the Guardian AppRole
 vault write auth/approle/role/guardian secret_id_num_uses=1 policies="guardian" secret_id_ttl="10m" secret_id_bound_cidrs="127.0.0.1/32" token_bound_cidrs="127.0.0.1/32"
