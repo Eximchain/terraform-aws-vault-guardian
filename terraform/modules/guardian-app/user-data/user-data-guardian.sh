@@ -42,6 +42,8 @@ function write_nginx_config {
     server_name $SERVER_NAME;
     location /v1/guardian/login {
       proxy_pass \"$VAULT_ADDR\";
+      proxy_set_header Host $host;
+      proxy_set_header X_FORWARDED_PROTO https;
       add_header 'Access-Control-Allow-Origin' '*';
       add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS';
       add_header 'Access-Control-Allow-Headers' 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range';
@@ -49,6 +51,8 @@ function write_nginx_config {
     }
     location /v1/guardian/sign {
       proxy_pass \"$VAULT_ADDR\";
+      proxy_set_header Host $host;
+      proxy_set_header X_FORWARDED_PROTO https;
       add_header 'Access-Control-Allow-Origin' '*';
       add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS';
       add_header 'Access-Control-Allow-Headers' 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range';
