@@ -40,11 +40,27 @@ function write_nginx_config {
   echo "
   server {
     server_name $SERVER_NAME;
-    location /v1/guardian/login {
+    location /v1/guardian {
+      if (\$request_method = 'OPTIONS') {
+        # Tell client that this pre-flight info is valid for 20 days
+        add_header 'Access-Control-Allow-Origin' '\$http_origin' always;
+        add_header 'Access-Control-Allow_Credentials' 'true' always;
+        add_header 'Access-Control-Allow-Methods' 'GET,POST,PUT,OPTIONS' always;
+        add_header 'Access-Control-Allow-Headers' 'Authorization,Accept,DNT,Origin,X-CustomHeader,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range' always;
+        add_header 'Access-Control-Expose-Headers' 'Content-Length,Content-Range' always;
+        add_header 'Access-Control-Max-Age' 1728000;
+        add_header 'Content-Type' 'text/plain charset=UTF-8';
+        add_header 'Content-Length' 0;
+        return 204;
+      }
+      add_header 'Access-Control-Allow-Origin' '\$http_origin' always;
+      add_header 'Access-Control-Allow_Credentials' 'true' always;
+      add_header 'Access-Control-Allow-Methods' 'GET,POST,PUT,OPTIONS' always;
+      add_header 'Access-Control-Allow-Headers' 'Authorization,Accept,DNT,Origin,X-CustomHeader,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range' always;
+      add_header 'Access-Control-Expose-Headers' 'Content-Length,Content-Range' always;
       proxy_pass \"$VAULT_ADDR\";
-    }
-    location /v1/guardian/sign {
-      proxy_pass \"$VAULT_ADDR\";
+      proxy_set_header Host \$host;
+      proxy_set_header X_FORWARDED_PROTO https;
     }
   }" | sudo tee /etc/nginx/sites-available/guardian > /dev/null 2>&1
   sudo ln -s /etc/nginx/sites-available/guardian /etc/nginx/sites-enabled/guardian
