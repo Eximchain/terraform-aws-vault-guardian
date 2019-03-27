@@ -40,23 +40,20 @@ function write_nginx_config {
   echo "
   server {
     server_name $SERVER_NAME;
+    add_header 'Access-Control-Allow-Origin' '*';
+    add_header 'Access-Control-Allow_Credentials' 'true';
+    add_header 'Access-Control-Allow-Methods' 'GET,POST,PUT,OPTIONS';
+    add_header 'Access-Control-Allow-Headers' 'Authorization,Accept,DNT,Origin,X-CustomHeader,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range';
+    add_header 'Access-Control-Expose-Headers' 'Content-Length,Content-Range';
     location /v1/guardian/login {
       proxy_pass \"$VAULT_ADDR\";
       proxy_set_header Host $host;
       proxy_set_header X_FORWARDED_PROTO https;
-      add_header 'Access-Control-Allow-Origin' '*';
-      add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS';
-      add_header 'Access-Control-Allow-Headers' 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range';
-      add_header 'Access-Control-Expose-Headers' 'Content-Length,Content-Range';
     }
     location /v1/guardian/sign {
       proxy_pass \"$VAULT_ADDR\";
       proxy_set_header Host $host;
       proxy_set_header X_FORWARDED_PROTO https;
-      add_header 'Access-Control-Allow-Origin' '*';
-      add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS';
-      add_header 'Access-Control-Allow-Headers' 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range';
-      add_header 'Access-Control-Expose-Headers' 'Content-Length,Content-Range';
     }
   }" | sudo tee /etc/nginx/sites-available/guardian > /dev/null 2>&1
   sudo ln -s /etc/nginx/sites-available/guardian /etc/nginx/sites-enabled/guardian
