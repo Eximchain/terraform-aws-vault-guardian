@@ -47,12 +47,12 @@ function write_nginx_config {
     add_header 'Access-Control-Expose-Headers' 'Content-Length,Content-Range';
     location /v1/guardian/login {
       proxy_pass \"$VAULT_ADDR\";
-      proxy_set_header Host $host;
+      proxy_set_header Host \$host;
       proxy_set_header X_FORWARDED_PROTO https;
     }
     location /v1/guardian/sign {
       proxy_pass \"$VAULT_ADDR\";
-      proxy_set_header Host $host;
+      proxy_set_header Host \$host;
       proxy_set_header X_FORWARDED_PROTO https;
     }
   }" | sudo tee /etc/nginx/sites-available/guardian > /dev/null 2>&1
