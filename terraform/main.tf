@@ -36,6 +36,14 @@ data "local_file" "public_key" {
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
+# S3 BUCKET FOR STORING CERTS
+# ---------------------------------------------------------------------------------------------------------------------
+resource "aws_s3_bucket" "vault_certs" {
+  bucket_prefix = "guardian-vault-certs-"
+  acl           = "private"
+}
+
+# ---------------------------------------------------------------------------------------------------------------------
 # MODULES
 # ---------------------------------------------------------------------------------------------------------------------
 module "guardian" {
@@ -59,8 +67,8 @@ module "guardian" {
   # Variables sourced from the vault module
   vault_dns                = "${module.guardian_vault.vault_dns}"
   vault_cert_s3_upload_id  = "${module.guardian_vault.vault_cert_s3_upload_id}"
-  vault_cert_bucket_name   = "${module.guardian_vault.vault_cert_bucket_name}"
-  vault_cert_bucket_arn    = "${module.guardian_vault.vault_cert_bucket_arn}"
+  vault_cert_bucket_name   = "${aws_s3_bucket.vault_certs.id}"
+  vault_cert_bucket_arn    = "${aws_s3_bucket.vault_certs.arn}"
   consul_cluster_tag_key   = "${module.guardian_vault.consul_cluster_tag_key}"
   consul_cluster_tag_value = "${module.guardian_vault.consul_cluster_tag_value}"
 
@@ -99,4 +107,7 @@ module "guardian_vault" {
   vault_instance_type  = "${var.vault_instance_type}"
   consul_cluster_size  = "${var.consul_cluster_size}"
   consul_instance_type = "${var.consul_instance_type}"
+
+  vault_cert_bucket_name   = "${aws_s3_bucket.vault_certs.id}"
+  vault_cert_bucket_arn    = "${aws_s3_bucket.vault_certs.arn}"
 }

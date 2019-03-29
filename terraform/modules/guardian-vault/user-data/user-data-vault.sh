@@ -15,8 +15,7 @@ function populate_data_files {
 }
 
 readonly VAULT_TLS_CERT_DIR="/opt/vault/tls"
-readonly CA_TLS_CERT_FILE="$VAULT_TLS_CERT_DIR/ca.crt.pem"
-readonly VAULT_TLS_CERT_FILE="$VAULT_TLS_CERT_DIR/vault.crt.pem"
+readonly VAULT_TLS_CERT_FILE="$VAULT_TLS_CERT_DIR/full.crt.pem"
 readonly VAULT_TLS_KEY_FILE="$VAULT_TLS_CERT_DIR/vault.key.pem"
 
 readonly PLUGIN_DIR="/opt/vault/bin/plugins"
@@ -27,14 +26,22 @@ populate_data_files
 
 # Download vault certs from s3
 aws configure set s3.signature_version s3v4
-aws s3 cp s3://${vault_cert_bucket}/ca.crt.pem $VAULT_TLS_CERT_DIR
-aws s3 cp s3://${vault_cert_bucket}/vault.crt.pem $VAULT_TLS_CERT_DIR
+while [ -z "$(aws s3 ls s3://${vault_cert_bucket}/full.crt.pem)" ]
+do
+    echo "S3 object not found, waiting and retrying"
+    sleep 5
+done
+while [ -z "$(aws s3 ls s3://${vault_cert_bucket}/vault.key.pem)" ]
+do
+    echo "S3 object not found, waiting and retrying"
+    sleep 5
+done
+aws s3 cp s3://${vault_cert_bucket}/full.crt.pem $VAULT_TLS_CERT_DIR
 aws s3 cp s3://${vault_cert_bucket}/vault.key.pem $VAULT_TLS_CERT_DIR
 
 # Set ownership and permissions
 sudo chown vault:vault $VAULT_TLS_CERT_DIR/*
 sudo chmod 600 $VAULT_TLS_CERT_DIR/*
-sudo /opt/vault/bin/update-certificate-store --cert-file-path $CA_TLS_CERT_FILE
 
 /opt/consul/bin/run-consul --server --cluster-tag-key "${consul_cluster_tag_key}" --cluster-tag-value "${consul_cluster_tag_value}"
 /opt/vault/bin/run-vault --s3-bucket "${s3_bucket_name}" --s3-bucket-region "${aws_region}"  --api-addr "${vault_api_addr}" --log-level "${vault_log_level}" --tls-cert-file "$VAULT_TLS_CERT_FILE"  --tls-key-file "$VAULT_TLS_KEY_FILE" --plugin-dir "$PLUGIN_DIR"

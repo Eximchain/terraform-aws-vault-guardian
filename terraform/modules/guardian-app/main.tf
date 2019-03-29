@@ -51,7 +51,17 @@ resource "aws_iam_policy" "guardian" {
     "Action": ["s3:GetObject"],
     "Resource": [
       "${var.vault_cert_bucket_arn}/ca.crt.pem",
-      "${var.vault_cert_bucket_arn}/vault.crt.pem"
+      "${var.vault_cert_bucket_arn}/vault.crt.pem",
+      "${var.vault_cert_bucket_arn}/full.crt.pem"
+    ]
+  },{
+    "Effect": "Allow",
+    "Action": ["s3.PutObject"],
+    "Resource": [
+      "${var.vault_cert_bucket_arn}/full.crt.pem",
+      "${var.vault_cert_bucket_arn}/vault.crt.pem",
+      "${var.vault_cert_bucket_arn}/ca.crt.pem",
+      "${var.vault_cert_bucket_arn}/vault.key.pem",
     ]
   }]
 }

@@ -31,11 +31,11 @@ variable "vault_dns" {
 }
 
 variable "vault_cert_bucket_name" {
-  description = "The name of the S3 bucket holding the vault TLS certificates"
+  description = "The name of the S3 bucket holding the Let's Encrypt TLS certificates"
 }
 
 variable "vault_cert_bucket_arn" {
-  description = "The ARN of the S3 bucket holding the vault TLS certificates"
+  description = "The ARN of the S3 bucket holding the Let's Encrypt TLS certificates"
 }
 
 variable "consul_cluster_tag_key" {
