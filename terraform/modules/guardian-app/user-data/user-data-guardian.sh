@@ -80,7 +80,7 @@ function get_ssl_certs {
 function upload_cert {
   local FILENAME=$1
   local S3_KEY=$2
-  sudo aws s3 cp /etc/letsencrypt/archive/guardian/${LOCAL_PATH} s3://${vault_cert_bucket}/${S3_KEY} --sse aws:kms
+  sudo aws s3 cp /etc/letsencrypt/archive/guardian/${FILENAME} s3://${vault_cert_bucket}/${S3_KEY} --sse aws:kms
 }
 
 function upload_ssl_certs {
