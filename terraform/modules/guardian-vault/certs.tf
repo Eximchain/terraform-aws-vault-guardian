@@ -2,18 +2,25 @@
 # S3 DATA SOURCES FOR FETCHING CERT
 # ---------------------------------------------------------------------------------------------------------------------
 data "aws_s3_bucket_object" "server_certificate" {
+  count = "${var.cert_bucket_exists ? 1 : 0}"
   bucket = "${var.vault_cert_bucket_name}"
   key    = "vault.crt.pem"
 }
 
 data "aws_s3_bucket_object" "ca_certificate" {
+  count = "${var.cert_bucket_exists ? 1 : 0}"
   bucket = "${var.vault_cert_bucket_name}"
   key    = "ca.crt.pem"
 }
 
 data "aws_s3_bucket_object" "private_key" {
+  count = "${var.cert_bucket_exists ? 1 : 0}"
   bucket = "${var.vault_cert_bucket_name}"
   key    = "vault.key.pem"
+}
+
+resource "null_resource" "certs_available" {
+  depends_on = ["data.aws_s3_bucket_object.server_certificate"]
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -21,11 +28,9 @@ data "aws_s3_bucket_object" "private_key" {
 # ---------------------------------------------------------------------------------------------------------------------
 resource "aws_iam_server_certificate" "vault_certs" {
   name_prefix       = "guardian-vault-cert-"
-  certificate_body  = "${aws_s3_bucket_object.server_certificate.body}"
-  certificate_chain = "${aws_s3_bucket_object.ca_certificate.body}"
-  private_key       = "${aws_s3_bucket_object.private_key.body}"
-
-  depends_on = ["aws_s3_bucket_object.public_key", "aws_s3_bucket_object.ca_public_key", "aws_s3_bucket_object.private_key"]
+  certificate_body  = "${data.aws_s3_bucket_object.server_certificate.body}"
+  certificate_chain = "${data.aws_s3_bucket_object.ca_certificate.body}"
+  private_key       = "${data.aws_s3_bucket_object.private_key.body}"
 }
 
 # ---------------------------------------------------------------------------------------------------------------------

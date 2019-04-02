@@ -134,8 +134,6 @@ data "template_file" "user_data_vault_cluster" {
     vault_log_level           = "${var.vault_log_level}"
   }
 
-  # user-data needs to download these objects
-  depends_on = ["aws_s3_bucket_object.vault_ca_public_key", "aws_s3_bucket_object.vault_public_key", "aws_s3_bucket_object.vault_private_key"]
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
