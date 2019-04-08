@@ -77,36 +77,28 @@ function get_ssl_certs {
   wait_for_successful_command "sudo certbot --cert-name guardian --nginx --noninteractive --agree-tos --redirect -m $CERT_WEBMASTER -d $DOMAIN"
 }
 
-function download_vault_certs {
-  # Download vault certs from s3
-  aws configure set s3.signature_version s3v4
-  while [ -z "$(aws s3 ls s3://${vault_cert_bucket}/ca.crt.pem)" ]
-  do
-      echo "S3 object not found, waiting and retrying"
-      sleep 5
-  done
-  while [ -z "$(aws s3 ls s3://${vault_cert_bucket}/vault.crt.pem)" ]
-  do
-      echo "S3 object not found, waiting and retrying"
-      sleep 5
-  done
-  aws s3 cp s3://${vault_cert_bucket}/ca.crt.pem $VAULT_TLS_CERT_DIR
-  aws s3 cp s3://${vault_cert_bucket}/vault.crt.pem $VAULT_TLS_CERT_DIR
+function upload_cert {
+  local FILENAME=$1
+  local S3_KEY=$2
+  sudo aws s3 cp /etc/letsencrypt/archive/guardian/${FILENAME} s3://${vault_cert_bucket}/${S3_KEY} --sse aws:kms
+}
 
-  # Set ownership and permissions
-  sudo chown ubuntu $VAULT_TLS_CERT_DIR/*
-  sudo chmod 600 $VAULT_TLS_CERT_DIR/*
-  sudo /opt/vault/bin/update-certificate-store --cert-file-path $CA_TLS_CERT_FILE
+function upload_ssl_certs {
+  aws configure set s3.signature_version s3v4
+  upload_cert privkey1.pem vault.key.pem
+  upload_cert fullchain1.pem full.crt.pem
+  upload_cert cert1.pem vault.crt.pem
+  upload_cert chain1.pem ca.crt.pem
 }
 
 # Send the log output from this script to user-data.log, syslog, and the console
 # From: https://alestic.com/2010/12/ec2-user-data-output/
 exec > >(tee /var/log/user-data.log|logger -t user-data -s 2>/dev/console) 2>&1
 
-download_vault_certs
 write_data
 write_nginx_config
 get_ssl_certs
+upload_ssl_certs
 
 # These variables are passed in via Terraform template interpolation
 /opt/consul/bin/run-consul --client --cluster-tag-key "${consul_cluster_tag_key}" --cluster-tag-value "${consul_cluster_tag_value}"

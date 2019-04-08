@@ -10,14 +10,6 @@ output "vault_port" {
   value = "${var.vault_port}"
 }
 
-output "vault_cert_bucket_name" {
-  value = "${aws_s3_bucket.vault_certs.bucket}"
-}
-
-output "vault_cert_bucket_arn" {
-  value = "${aws_s3_bucket.vault_certs.arn}"
-}
-
 output "vault_asg_name" {
   value = "${aws_autoscaling_group.vault_cluster.name}"
 }
@@ -80,10 +72,6 @@ output "consul_cluster_tag_key" {
 
 output "consul_cluster_tag_value" {
   value = "${module.consul_cluster.cluster_tag_value}"
-}
-
-output "vault_cert_s3_upload_id" {
-  value = "${null_resource.vault_cert_s3_upload.id}"
 }
 
 output "vault_cert_access_policy_arn" {

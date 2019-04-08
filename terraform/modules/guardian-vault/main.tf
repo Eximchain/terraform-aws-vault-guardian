@@ -128,14 +128,12 @@ data "template_file" "user_data_vault_cluster" {
     s3_bucket_name            = "${aws_s3_bucket.guardian_vault.id}"
     consul_cluster_tag_key    = "${module.consul_cluster.cluster_tag_key}"
     consul_cluster_tag_value  = "${module.consul_cluster.cluster_tag_value}"
-    vault_cert_bucket         = "${aws_s3_bucket.vault_certs.bucket}"
+    vault_cert_bucket         = "${var.vault_cert_bucket_name}"
     okta_api_token            = "${var.okta_api_token}"
     vault_api_addr            = "${aws_lb.guardian_vault.dns_name}"
     vault_log_level           = "${var.vault_log_level}"
   }
 
-  # user-data needs to download these objects
-  depends_on = ["aws_s3_bucket_object.vault_ca_public_key", "aws_s3_bucket_object.vault_public_key", "aws_s3_bucket_object.vault_private_key"]
 }
 
 # ---------------------------------------------------------------------------------------------------------------------

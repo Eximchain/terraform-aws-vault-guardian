@@ -1,62 +1,26 @@
 # ---------------------------------------------------------------------------------------------------------------------
-# CERTIFICATES FOR VAULT
+# S3 DATA SOURCES FOR FETCHING CERT
 # ---------------------------------------------------------------------------------------------------------------------
-module "cert_tool" {
-  source = "../cert-tool"
-
-  ca_public_key_file_path = "${path.module}/certs/ca.crt.pem"
-  public_key_file_path    = "${path.module}/certs/vault.crt.pem"
-  private_key_file_path   = "${path.module}/certs/vault.key.pem"
-  owner                   = "${var.cert_owner}"
-  organization_name       = "${var.cert_org_name}"
-  ca_common_name          = "guardian-vault cert authority"
-  common_name             = "guardian cert network"
-  dns_names               = ["${aws_lb.guardian_vault.dns_name}"]
-  ip_addresses            = ["127.0.0.1"]
-  validity_period_hours   = 8760
+data "aws_s3_bucket_object" "server_certificate" {
+  count = "${var.cert_bucket_exists ? 1 : 0}"
+  bucket = "${var.vault_cert_bucket_name}"
+  key    = "vault.crt.pem"
 }
 
-# ---------------------------------------------------------------------------------------------------------------------
-# S3 BUCKET FOR STORING CERTS
-# ---------------------------------------------------------------------------------------------------------------------
-resource "aws_s3_bucket" "vault_certs" {
-  bucket_prefix = "guardian-vault-certs-"
-  acl           = "private"
+data "aws_s3_bucket_object" "ca_certificate" {
+  count = "${var.cert_bucket_exists ? 1 : 0}"
+  bucket = "${var.vault_cert_bucket_name}"
+  key    = "ca.crt.pem"
 }
 
-# ---------------------------------------------------------------------------------------------------------------------
-# UPLOAD CERTS TO S3
-# TODO: Encrypt end-to-end with KMS
-# ---------------------------------------------------------------------------------------------------------------------
-resource "aws_s3_bucket_object" "vault_ca_public_key" {
-  key                    = "ca.crt.pem"
-  bucket                 = "${aws_s3_bucket.vault_certs.bucket}"
-  source                 = "${module.cert_tool.ca_public_key_file_path}"
-  server_side_encryption = "aws:kms"
-
-  depends_on = ["module.cert_tool"]
+data "aws_s3_bucket_object" "private_key" {
+  count = "${var.cert_bucket_exists ? 1 : 0}"
+  bucket = "${var.vault_cert_bucket_name}"
+  key    = "vault.key.pem"
 }
 
-resource "aws_s3_bucket_object" "vault_public_key" {
-  key                    = "vault.crt.pem"
-  bucket                 = "${aws_s3_bucket.vault_certs.bucket}"
-  source                 = "${module.cert_tool.public_key_file_path}"
-  server_side_encryption = "aws:kms"
-
-  depends_on = ["module.cert_tool"]
-}
-
-resource "aws_s3_bucket_object" "vault_private_key" {
-  key                    = "vault.key.pem"
-  bucket                 = "${aws_s3_bucket.vault_certs.bucket}"
-  source                 = "${module.cert_tool.private_key_file_path}"
-  server_side_encryption = "aws:kms"
-
-  depends_on = ["module.cert_tool"]
-}
-
-resource "null_resource" "vault_cert_s3_upload" {
-  depends_on = ["aws_s3_bucket_object.vault_ca_public_key", "aws_s3_bucket_object.vault_public_key", "aws_s3_bucket_object.vault_private_key"]
+resource "null_resource" "certs_available" {
+  depends_on = ["data.aws_s3_bucket_object.server_certificate"]
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -64,11 +28,9 @@ resource "null_resource" "vault_cert_s3_upload" {
 # ---------------------------------------------------------------------------------------------------------------------
 resource "aws_iam_server_certificate" "vault_certs" {
   name_prefix       = "guardian-vault-cert-"
-  certificate_body  = "${module.cert_tool.public_key}"
-  certificate_chain = "${module.cert_tool.ca_public_key}"
-  private_key       = "${module.cert_tool.private_key}"
-
-  depends_on = ["module.cert_tool"]
+  certificate_body  = "${data.aws_s3_bucket_object.server_certificate.body}"
+  certificate_chain = "${data.aws_s3_bucket_object.ca_certificate.body}"
+  private_key       = "${data.aws_s3_bucket_object.private_key.body}"
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -84,11 +46,11 @@ resource "aws_iam_policy" "vault_cert_access" {
   "Statement": [{
     "Effect": "Allow",
     "Action": ["s3:ListBucket"],
-    "Resource": ["${aws_s3_bucket.vault_certs.arn}"]
+    "Resource": ["${var.vault_cert_bucket_arn}"]
   },{
     "Effect": "Allow",
     "Action": ["s3:GetObject"],
-    "Resource": ["${aws_s3_bucket.vault_certs.arn}/*"]
+    "Resource": ["${var.vault_cert_bucket_arn}/*"]
   }]
 }
 EOF

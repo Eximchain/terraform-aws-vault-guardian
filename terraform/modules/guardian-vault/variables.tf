@@ -18,6 +18,18 @@ variable "okta_api_token" {
   description = "The API token to use for Okta setup"
 }
 
+variable "cert_bucket_exists" {
+  description = "Boolean to tell the module whether the cert bucket objects are available."
+}
+
+variable "vault_cert_bucket_name" {
+  description = "The name of the S3 bucket holding the Let's Encrypt TLS certificates"
+}
+
+variable "vault_cert_bucket_arn" {
+  description = "The ARN of the S3 bucket holding the Let's Encrypt TLS certificates"
+}
+
 # ---------------------------------------------------------------------------------------------------------------------
 # OPTIONAL PARAMETERS
 # These parameters have reasonable defaults.
