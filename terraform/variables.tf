@@ -56,34 +56,9 @@ variable "node_availability_zones" {
   default     = []
 }
 
-variable "node_count" {
-  description = "The number of eximchain nodes to launch."
-  default     = 1
-}
-
-variable "guardian_api_cidrs" {
-  description = "List of CIDRs to grant access to the guardian API."
-  default     = []
-}
-
-variable "guardian_api_security_groups" {
-  description = "List of security groups to grant access to the guardian API."
-  default     = []
-}
-
 variable "force_destroy_s3_buckets" {
   description = "Whether or not to force destroy s3 buckets. Set to true for an easily destroyed test environment. DO NOT set to true for a production environment."
   default     = false
-}
-
-variable "guardian_ami" {
-  description = "AMI ID to use for transaction executor servers. Defaults to getting the most recently built version from Eximchain"
-  default     = ""
-}
-
-variable "guardian_instance_type" {
-  description = "The EC2 instance type to use for eximchain nodes"
-  default     = "t2.medium"
 }
 
 variable "vault_consul_ami" {
