@@ -82,10 +82,6 @@ output "consul_cluster_tag_value" {
   value = "${module.consul_cluster.cluster_tag_value}"
 }
 
-output "vault_cert_s3_upload_id" {
-  value = "${null_resource.vault_cert_s3_upload.id}"
-}
-
 output "vault_cert_access_policy_arn" {
   value = "${aws_iam_policy.vault_cert_access.arn}"
 }

@@ -7,7 +7,7 @@ provider "aws" {
   region  = "${var.aws_region}"
 }
 
-provider "null" {
+provider "template" {
   version = "~> 1.0"
 }
 
