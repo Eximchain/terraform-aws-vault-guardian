@@ -65,6 +65,7 @@
     "type": "shell",
     "scripts": [
       "provisioning-scripts/golang.sh",
+      "provisioning-scripts/certbot.sh",
       "provisioning-scripts/guardian-plugin.sh"
     ]
   },{

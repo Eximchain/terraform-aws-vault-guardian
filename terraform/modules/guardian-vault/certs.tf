@@ -4,14 +4,14 @@
 module "cert_tool" {
   source = "../cert-tool"
 
-  ca_public_key_file_path = "${path.module}/certs/ca.crt.pem"
-  public_key_file_path    = "${path.module}/certs/vault.crt.pem"
-  private_key_file_path   = "${path.module}/certs/vault.key.pem"
+  ca_public_key_file_path = "${path.module}/certs/ca.crt.selfsigned.pem"
+  public_key_file_path    = "${path.module}/certs/vault.crt.selfsigned.pem"
+  private_key_file_path   = "${path.module}/certs/vault.key.selfsigned.pem"
   owner                   = "${var.cert_owner}"
   organization_name       = "${var.cert_org_name}"
   ca_common_name          = "guardian-vault cert authority"
   common_name             = "guardian cert network"
-  dns_names               = ["${aws_lb.guardian_vault.dns_name}"]
+  dns_names               = ["localhost"]
   ip_addresses            = ["127.0.0.1"]
   validity_period_hours   = 8760
 }
@@ -29,7 +29,7 @@ resource "aws_s3_bucket" "vault_certs" {
 # TODO: Encrypt end-to-end with KMS
 # ---------------------------------------------------------------------------------------------------------------------
 resource "aws_s3_bucket_object" "vault_ca_public_key" {
-  key                    = "ca.crt.pem"
+  key                    = "ca.crt.selfsigned.pem"
   bucket                 = "${aws_s3_bucket.vault_certs.bucket}"
   source                 = "${module.cert_tool.ca_public_key_file_path}"
   server_side_encryption = "aws:kms"
@@ -38,7 +38,7 @@ resource "aws_s3_bucket_object" "vault_ca_public_key" {
 }
 
 resource "aws_s3_bucket_object" "vault_public_key" {
-  key                    = "vault.crt.pem"
+  key                    = "vault.crt.selfsigned.pem"
   bucket                 = "${aws_s3_bucket.vault_certs.bucket}"
   source                 = "${module.cert_tool.public_key_file_path}"
   server_side_encryption = "aws:kms"
@@ -47,7 +47,7 @@ resource "aws_s3_bucket_object" "vault_public_key" {
 }
 
 resource "aws_s3_bucket_object" "vault_private_key" {
-  key                    = "vault.key.pem"
+  key                    = "vault.key.selfsigned.pem"
   bucket                 = "${aws_s3_bucket.vault_certs.bucket}"
   source                 = "${module.cert_tool.private_key_file_path}"
   server_side_encryption = "aws:kms"
