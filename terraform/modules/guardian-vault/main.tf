@@ -40,24 +40,23 @@ resource "aws_subnet" "vault" {
 resource "aws_lb" "guardian_vault" {
   internal = false
 
-  load_balancer_type = "network"
-
   subnets         = ["${aws_subnet.vault.*.id}"]
+  security_groups = ["${aws_security_group.vault_cluster.id}"]
 }
 
 resource "aws_lb_target_group" "guardian_vault" {
   name_prefix = "vault-"
   port        = "${var.vault_port}"
-  protocol    = "TCP"
+  protocol    = "HTTPS"
   vpc_id      = "${var.aws_vpc}"
-
-#  stickiness = []
 }
 
 resource "aws_lb_listener" "guardian_vault" {
   load_balancer_arn = "${aws_lb.guardian_vault.arn}"
-  port              = "${var.vault_lb_port}"
-  protocol          = "TCP"
+  port              = "${var.vault_port}"
+  protocol          = "HTTPS"
+  ssl_policy        = "${var.lb_ssl_policy}"
+  certificate_arn   = "${aws_iam_server_certificate.vault_certs.arn}"
 
   default_action {
     target_group_arn = "${aws_lb_target_group.guardian_vault.arn}"

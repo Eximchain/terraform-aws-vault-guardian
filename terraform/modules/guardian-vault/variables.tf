@@ -40,11 +40,6 @@ variable "vault_port" {
   default     = 8200
 }
 
-variable "vault_lb_port" {
-  description = "The port that vault will be accessible on on the load balancer."
-  default     = 443
-}
-
 variable "force_destroy_s3_bucket" {
   description = "Whether or not to force destroy the vault s3 bucket. Set to true for an easily destroyed test environment. DO NOT set to true for a production environment."
   default     = false
@@ -73,6 +68,11 @@ variable "consul_cluster_size" {
 variable "consul_instance_type" {
   description = "The type of instance to use in the consul cluster"
   default     = "t2.micro"
+}
+
+variable "lb_ssl_policy" {
+  description = "The SSL policy to use for the vault load balancer"
+  default     = "ELBSecurityPolicy-2016-08"
 }
 
 variable "cert_org_name" {
