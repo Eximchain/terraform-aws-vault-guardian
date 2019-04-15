@@ -129,9 +129,6 @@ function generate_vault_config {
     public_api_addr="$instance_ip_address"
   fi
 
-  local tls_selfsigned_cert="/opt/vault/tls/vault.crt.selfsigned.pem"
-  local tls_selfsigned_key="/opt/vault/tls/vault.key.selfsigned.pem"
-
   log_info "Creating default Vault config file in $config_path"
 
   cat > "$config_path" <<EOF
@@ -150,20 +147,14 @@ ha_storage "consul" {
   cluster_addr  = "https://$instance_ip_address:$cluster_port"
 }
 listener "tcp" {
-  address         = "$instance_ip_address:$port"
-  cluster_address = "$instance_ip_address:$cluster_port"
+  address         = "0.0.0.0:$port"
+  cluster_address = "0.0.0.0:$cluster_port"
   tls_cert_file   = "$tls_cert_file"
   tls_key_file    = "$tls_key_file"
 }
-listener "tcp" {
-  address         = "127.0.0.1:$port"
-  cluster_address = "127.0.0.1:$cluster_port"
-  tls_cert_file   = "$tls_selfsigned_cert"
-  tls_key_file    = "$tls_selfsigned_key"
-}
 plugin_directory = "$plugin_directory"
 
-api_addr = "https://127.0.0.1:$port"
+api_addr = "https://$public_api_addr:$port"
 cluster_addr = "https://$public_api_addr:$cluster_port"
 EOF
   chown "$user:$user" "$config_path"

@@ -50,6 +50,8 @@ resource "aws_lb_target_group" "guardian_vault" {
   port        = "${var.vault_port}"
   protocol    = "TCP"
   vpc_id      = "${var.aws_vpc}"
+
+#  stickiness = []
 }
 
 resource "aws_lb_listener" "guardian_vault" {
@@ -59,24 +61,6 @@ resource "aws_lb_listener" "guardian_vault" {
 
   default_action {
     target_group_arn = "${aws_lb_target_group.guardian_vault.arn}"
-    type             = "forward"
-  }
-}
-
-resource "aws_lb_target_group" "vault_cluster_redirect" {
-  name_prefix = "vclus-"
-  port        = 8201
-  protocol    = "TCP"
-  vpc_id      = "${var.aws_vpc}"
-}
-
-resource "aws_lb_listener" "vault_cluster_redirect" {
-  load_balancer_arn = "${aws_lb.guardian_vault.arn}"
-  port              = 8201
-  protocol          = "TCP"
-
-  default_action {
-    target_group_arn = "${aws_lb_target_group.vault_cluster_redirect.arn}"
     type             = "forward"
   }
 }
@@ -107,14 +91,9 @@ data "aws_route53_zone" "domain" {
 resource "aws_route53_record" "guardian" {
   zone_id                  = "${data.aws_route53_zone.domain.zone_id}"
   name                     = "${local.custom_domain}"
-  type                     = "A"
-
-  alias {
-    name    = "${aws_lb.guardian_vault.dns_name}"
-    zone_id = "${aws_lb.guardian_vault.zone_id}"
-
-    evaluate_target_health = false
-  }
+  type                     = "CNAME"
+  ttl                      = "300"
+  records                  = ["${aws_lb.guardian_vault.dns_name}"]
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -171,7 +150,7 @@ data "template_file" "user_data_vault_cluster" {
     consul_cluster_tag_value  = "${module.consul_cluster.cluster_tag_value}"
     vault_cert_bucket         = "${aws_s3_bucket.vault_certs.bucket}"
     okta_api_token            = "${var.okta_api_token}"
-    vault_api_addr            = "${local.custom_domain}"
+    vault_api_addr            = "${aws_lb.guardian_vault.dns_name}"
     vault_log_level           = "${var.vault_log_level}"
   }
 

@@ -201,33 +201,3 @@ data "aws_iam_policy_document" "vault_s3" {
     ]
   }
 }
-
-# ---------------------------------------------------------------------------------------------------------------------
-# ALLOW ROUTE53 ACCESS FOR CERTBOT
-# ---------------------------------------------------------------------------------------------------------------------
-# TODO: Get HTTP challenge working for faster provisioning and fewer permissions on vault instances
-resource "aws_iam_role_policy" "certbot_route53" {
-  name   = "certbot_route53"
-  role   = "${aws_iam_role.vault_cluster.id}"
-  policy = "${data.aws_iam_policy_document.certbot_route53.json}"
-}
-
-data "aws_iam_policy_document" "certbot_route53" {
-  statement {
-    effect  = "Allow"
-    actions = [
-                "route53:ListHostedZones",
-                "route53:GetChange"
-              ]
-
-    resources = ["*"]
-  }
-
-  # TODO: Limit to specific DNS names
-  statement {
-    effect  = "Allow"
-    actions = ["route53:ChangeResourceRecordSets"]
-
-    resources = ["arn:aws:route53:::hostedzone/${data.aws_route53_zone.domain.zone_id}"]
-  }
-}
