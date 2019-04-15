@@ -38,7 +38,7 @@ resource "aws_subnet" "vault" {
 # LOAD BALANCER FOR VAULT
 # ---------------------------------------------------------------------------------------------------------------------
 resource "aws_lb" "guardian_vault" {
-  internal = false
+  internal = true
 
   subnets         = ["${aws_subnet.vault.*.id}"]
   security_groups = ["${aws_security_group.vault_cluster.id}"]
@@ -74,25 +74,6 @@ data "aws_ami" "vault_consul" {
     name   = "name"
     values = ["eximchain-vault-guardian-*"]
   }
-}
-
-# ---------------------------------------------------------------------------------------------------------------------
-# DNS RECORD
-# ---------------------------------------------------------------------------------------------------------------------
-locals {
-  custom_domain       = "${var.subdomain_name}.${var.root_domain}"
-}
-
-data "aws_route53_zone" "domain" {
-  name  = "${var.root_domain}."
-}
-
-resource "aws_route53_record" "guardian" {
-  zone_id                  = "${data.aws_route53_zone.domain.zone_id}"
-  name                     = "${local.custom_domain}"
-  type                     = "CNAME"
-  ttl                      = "300"
-  records                  = ["${aws_lb.guardian_vault.dns_name}"]
 }
 
 # ---------------------------------------------------------------------------------------------------------------------

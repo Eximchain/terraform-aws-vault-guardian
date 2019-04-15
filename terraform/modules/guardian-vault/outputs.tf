@@ -3,7 +3,7 @@ output "vault_server_public_ips" {
 }
 
 output "vault_dns" {
-  value = "${aws_route53_record.guardian.name}"
+  value = "${aws_lb.guardian_vault.dns_name}"
 }
 
 output "vault_port" {

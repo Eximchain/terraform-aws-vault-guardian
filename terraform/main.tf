@@ -38,6 +38,42 @@ data "local_file" "public_key" {
 # ---------------------------------------------------------------------------------------------------------------------
 # MODULES
 # ---------------------------------------------------------------------------------------------------------------------
+module "guardian" {
+  # Source from github if using in another project
+  source = "modules/guardian-app"
+
+  # Ensure the VPC Route is preserved for certificate revocation during instance destroy
+  aws_route = "${aws_route.guardian.id}"
+
+  # Variables sourced from terraform.tfvars
+  public_key                     = "${var.public_key == "" ? join("", data.local_file.public_key.*.content) : var.public_key}"
+  private_key                    = "${var.private_key}"
+  aws_region                     = "${var.aws_region}"
+  availability_zone              = "${var.availability_zone}"
+  cert_owner                     = "${var.cert_owner}"
+  force_destroy_s3_buckets       = "${var.force_destroy_s3_buckets}"
+  guardian_instance_type         = "${var.guardian_instance_type}"
+  guardian_api_cidrs             = "${var.guardian_api_cidrs}"
+  guardian_api_security_groups   = "${var.guardian_api_security_groups}"
+
+  # Variables sourced from the vault module
+  vault_dns                = "${module.guardian_vault.vault_dns}"
+  vault_cert_s3_upload_id  = "${module.guardian_vault.vault_cert_s3_upload_id}"
+  vault_cert_bucket_name   = "${module.guardian_vault.vault_cert_bucket_name}"
+  vault_cert_bucket_arn    = "${module.guardian_vault.vault_cert_bucket_arn}"
+  consul_cluster_tag_key   = "${module.guardian_vault.consul_cluster_tag_key}"
+  consul_cluster_tag_value = "${module.guardian_vault.consul_cluster_tag_value}"
+
+  aws_vpc = "${aws_vpc.guardian.id}"
+
+  base_subnet_cidr = "${cidrsubnet(var.vpc_cidr, 2, 0)}"
+
+  guardian_ami = "${var.guardian_ami}"
+
+  subdomain_name = "${var.subdomain_name}"
+  root_domain    = "${var.root_domain}"
+}
+
 module "guardian_vault" {
   source = "modules/guardian-vault"
 
@@ -63,7 +99,4 @@ module "guardian_vault" {
   vault_instance_type  = "${var.vault_instance_type}"
   consul_cluster_size  = "${var.consul_cluster_size}"
   consul_instance_type = "${var.consul_instance_type}"
-
-  subdomain_name = "${var.subdomain_name}"
-  root_domain    = "${var.root_domain}"
 }
