@@ -6,10 +6,6 @@ variable "aws_region" {
   description = "AWS region to launch servers."
 }
 
-variable "availability_zone" {
-  description = "AWS availability zone to launch the transaction executor and eximchain node in"
-}
-
 variable "subdomain_name" {
   description = "Required; the [value] in the final '[value].[root_domain]' DNS name."
 }

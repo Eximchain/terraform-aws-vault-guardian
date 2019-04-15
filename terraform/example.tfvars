@@ -1,6 +1,5 @@
 public_key_path                    = "~/.ssh/quorum.pub"
 aws_region                         = "us-east-1"
-availability_zone                  = "us-east-1a"
 cert_owner                         = "FIXME_USER"
 force_destroy_s3_buckets           = true
 vault_cluster_size                 = 1
