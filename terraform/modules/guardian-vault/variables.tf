@@ -89,3 +89,12 @@ variable "vault_log_level" {
   description = "Log level for the vault process"
   default     = "info"
 }
+variable "letsencrypt_webmaster" {
+  description = "The email address to use as the Webmaster for Let's Encrypt certificates"
+  default     = "louis@eximchain.com"
+}
+
+variable "letsencrypt_acme_server" {
+  description = "The ACME server to use for Let's Encrypt certs"
+  default     = "https://acme-v02.api.letsencrypt.org/directory"
+}

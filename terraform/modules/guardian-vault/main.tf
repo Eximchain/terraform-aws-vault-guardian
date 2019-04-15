@@ -176,7 +176,10 @@ data "template_file" "user_data_vault_cluster" {
   }
 
   # user-data needs to download these objects
-  depends_on = ["aws_s3_bucket_object.vault_ca_public_key", "aws_s3_bucket_object.vault_public_key", "aws_s3_bucket_object.vault_private_key"]
+  depends_on = [
+                 "aws_s3_bucket_object.vault_selfsigned_ca_public_key", "aws_s3_bucket_object.vault_selfsigned_public_key", "aws_s3_bucket_object.vault_selfsigned_private_key",
+                 "aws_s3_bucket_object.vault_letsencrypt_ca_public_key", "aws_s3_bucket_object.vault_letsencrypt_public_key", "aws_s3_bucket_object.vault_letsencrypt_private_key"
+               ]
 }
 
 # ---------------------------------------------------------------------------------------------------------------------

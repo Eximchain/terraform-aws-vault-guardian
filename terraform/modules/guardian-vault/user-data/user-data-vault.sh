@@ -23,47 +23,16 @@ function populate_data_files {
     echo "${vault_api_addr}" | sudo tee /opt/vault/custom-domain.txt > /dev/null 2>&1
 }
 
-# TODO: Get this working
-function get_ssl_certs_http {
-    # TODO: Don't start the nginx server in the first place
-    sudo nginx -s stop
-    # LetsEncrypt requires a webmaster email in case of issues.  Must specify custom domain
-    # we want certs for.  Note that we only use custom b/c they don't give certs to .amazonaws.com
-    # domains.  Including the --cert-name option ensures that we know what directory the keys
-    # are placed in, and it tells LetsEncrypt which nginx config to update.
-    local readonly CERT_WEBMASTER="louis@eximchain.com"
-    local readonly DOMAIN=$(cat /opt/vault/custom-domain.txt)
-    sudo certbot certonly --cert-name guardian --standalone --noninteractive --agree-tos -m $CERT_WEBMASTER -d $DOMAIN
-}
-
-function get_ssl_certs_dns {
-  # LetsEncrypt requires a webmaster email in case of issues.  Must specify custom domain
-  # we want certs for.  Note that we only use custom b/c they don't give certs to .amazonaws.com
-  # domains.  Including the --cert-name option ensures that we know what directory the keys
-  # are placed in, and it tells LetsEncrypt which nginx config to update.
-  local readonly CERT_WEBMASTER="louis@eximchain.com"
-  local readonly DOMAIN=$(cat /opt/vault/custom-domain.txt)
-  sudo certbot certonly --cert-name guardian --dns-route53 --noninteractive --agree-tos -m $CERT_WEBMASTER -d $DOMAIN
-}
-
-function download_selfsigned_certs_from_s3 {
+function download_certs_from_s3 {
     aws configure set s3.signature_version s3v4
     aws s3 cp s3://${vault_cert_bucket}/ca.crt.selfsigned.pem $VAULT_TLS_CERT_DIR
     aws s3 cp s3://${vault_cert_bucket}/vault.crt.selfsigned.pem $VAULT_TLS_CERT_DIR
     aws s3 cp s3://${vault_cert_bucket}/vault.key.selfsigned.pem $VAULT_TLS_CERT_DIR
-}
 
-function copy_certbot_certs {
-    local readonly CERTBOT_CERT_DIR="/etc/letsencrypt/live/guardian"
-    local readonly VAULT_CERTBOT_CERT_FILE="$CERTBOT_CERT_DIR/fullchain.pem"
-    local readonly VAULT_CERTBOT_KEY_FILE="$CERTBOT_CERT_DIR/privkey.pem"
-    local readonly VAULT_CERTBOT_SINGLE_CERT_FILE="$CERTBOT_CERT_DIR/cert.pem"
-    local readonly VAULT_CERTBOT_CA_FILE="$CERTBOT_CERT_DIR/chain.pem"
-
-    sudo cp $VAULT_CERTBOT_CERT_FILE $VAULT_TLS_CERT_DIR
-    sudo cp $VAULT_CERTBOT_KEY_FILE $VAULT_TLS_CERT_DIR
-    sudo cp $VAULT_CERTBOT_CA_FILE $VAULT_TLS_CERT_DIR
-    sudo cp $VAULT_CERTBOT_SINGLE_CERT_FILE $VAULT_TLS_CERT_DIR
+    aws s3 cp s3://${vault_cert_bucket}/chain.pem $VAULT_TLS_CERT_DIR
+    aws s3 cp s3://${vault_cert_bucket}/cert.pem $VAULT_TLS_CERT_DIR
+    aws s3 cp s3://${vault_cert_bucket}/privkey.pem $VAULT_TLS_CERT_DIR
+    cat $VAULT_TLS_CERT_DIR/cert.pem $VAULT_TLS_CERT_DIR/chain.pem | sudo tee $VAULT_TLS_CERT_DIR/fullchain.pem > /dev/null 2>&1
 }
 
 readonly PLUGIN_DIR="/opt/vault/bin/plugins"
@@ -72,12 +41,7 @@ populate_data_files
 
 /opt/vault/bin/generate-setup-vault.sh
 
-# Self-signed certs for local interface
-download_selfsigned_certs_from_s3
-
-# Let's Encrypt certs for internet interface
-get_ssl_certs_dns
-copy_certbot_certs
+download_certs_from_s3
 
 # Set ownership and permissions
 sudo chown vault:vault $VAULT_TLS_CERT_DIR/*

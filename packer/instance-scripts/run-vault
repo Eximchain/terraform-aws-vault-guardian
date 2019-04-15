@@ -163,7 +163,7 @@ listener "tcp" {
 }
 plugin_directory = "$plugin_directory"
 
-api_addr = "https://$public_api_addr"
+api_addr = "https://127.0.0.1:$port"
 cluster_addr = "https://$public_api_addr:$cluster_port"
 EOF
   chown "$user:$user" "$config_path"

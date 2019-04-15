@@ -66,4 +66,7 @@ module "guardian_vault" {
 
   subdomain_name = "${var.subdomain_name}"
   root_domain    = "${var.root_domain}"
+
+  letsencrypt_webmaster   = "${var.letsencrypt_webmaster}"
+  letsencrypt_acme_server = "${var.letsencrypt_acme_server}"
 }
