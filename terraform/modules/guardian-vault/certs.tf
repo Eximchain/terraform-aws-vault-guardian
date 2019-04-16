@@ -11,7 +11,7 @@ module "cert_tool" {
   organization_name       = "${var.cert_org_name}"
   ca_common_name          = "guardian-vault cert authority"
   common_name             = "guardian cert network"
-  dns_names               = ["localhost"]
+  dns_names               = ["${local.custom_domain}", "localhost"]
   ip_addresses            = ["127.0.0.1"]
   validity_period_hours   = 8760
 }

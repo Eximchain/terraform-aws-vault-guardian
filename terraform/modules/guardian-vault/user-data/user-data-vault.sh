@@ -35,9 +35,18 @@ function download_certs_from_s3 {
     cat $VAULT_TLS_CERT_DIR/cert.pem $VAULT_TLS_CERT_DIR/chain.pem | sudo tee $VAULT_TLS_CERT_DIR/fullchain.pem > /dev/null 2>&1
 }
 
+function configure_local_vault_dns {
+    local readonly HOSTS_FILE="/etc/hosts"
+    local readonly HOSTNAME=$(cat /opt/vault/custom-domain.txt)
+
+    echo "" | sudo tee -a $HOSTS_FILE > /dev/null 2>&1
+    echo "127.0.0.1 $HOSTNAME" | sudo tee -a $HOSTS_FILE > /dev/null 2>&1
+}
+
 readonly PLUGIN_DIR="/opt/vault/bin/plugins"
 
 populate_data_files
+configure_local_vault_dns
 
 /opt/vault/bin/generate-setup-vault.sh
 

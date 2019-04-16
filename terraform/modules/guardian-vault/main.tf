@@ -52,9 +52,20 @@ resource "aws_lb_target_group" "guardian_vault" {
   vpc_id      = "${var.aws_vpc}"
 }
 
-resource "aws_lb_listener" "guardian_vault" {
+resource "aws_lb_listener" "guardian_vault_ssl" {
   load_balancer_arn = "${aws_lb.guardian_vault.arn}"
   port              = "${var.vault_lb_port}"
+  protocol          = "TCP"
+
+  default_action {
+    target_group_arn = "${aws_lb_target_group.guardian_vault.arn}"
+    type             = "forward"
+  }
+}
+
+resource "aws_lb_listener" "guardian_vault_direct" {
+  load_balancer_arn = "${aws_lb.guardian_vault.arn}"
+  port              = "${var.vault_port}"
   protocol          = "TCP"
 
   default_action {
