@@ -95,11 +95,18 @@
     "source": "instance-scripts/generate-setup-vault.sh",
     "destination": "/tmp/generate-setup-vault.sh"
   },{
+    "type": "file",
+    "source": "instance-scripts/update-https-certs.sh",
+    "destination": "/tmp/update-https-certs.sh"
+  },{
     "type": "shell",
     "inline": [
       "sudo mv /tmp/generate-setup-vault.sh /opt/vault/bin/",
       "sudo chown ubuntu /opt/vault/bin/generate-setup-vault.sh",
-      "sudo chmod 744 /opt/vault/bin/generate-setup-vault.sh"
+      "sudo chmod 744 /opt/vault/bin/generate-setup-vault.sh",
+      "sudo mv /tmp/update-https-certs.sh /opt/vault/bin/",
+      "sudo chown ubuntu /opt/vault/bin/update-https-certs.sh",
+      "sudo chmod 744 /opt/vault/bin/update-https-certs.sh"
     ]
   },{
     "type": "shell",

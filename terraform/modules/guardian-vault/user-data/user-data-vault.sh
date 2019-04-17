@@ -21,6 +21,7 @@ readonly VAULT_TLS_SINGLE_CERT_FILE="$VAULT_TLS_CERT_DIR/cert.pem"
 function populate_data_files {
     echo "${okta_api_token}" | sudo tee /opt/vault/okta-api-token.txt > /dev/null 2>&1
     echo "${vault_api_addr}" | sudo tee /opt/vault/custom-domain.txt > /dev/null 2>&1
+    echo "${vault_cert_bucket}" | sudo tee /opt/vault/cert-bucket.txt > /dev/null 2>&1
 }
 
 function download_certs_from_s3 {
