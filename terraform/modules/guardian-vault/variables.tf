@@ -89,6 +89,7 @@ variable "vault_log_level" {
   description = "Log level for the vault process"
   default     = "info"
 }
+
 variable "letsencrypt_webmaster" {
   description = "The email address to use as the Webmaster for Let's Encrypt certificates"
   default     = "louis@eximchain.com"

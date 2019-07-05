@@ -3,17 +3,17 @@
 # ---------------------------------------------------------------------------------------------------------------------
 
 resource "aws_autoscaling_group" "vault_cluster" {
-  launch_configuration = "${aws_launch_configuration.vault_cluster.name}"
+  launch_configuration = aws_launch_configuration.vault_cluster.name
 
-  vpc_zone_identifier = ["${aws_subnet.vault.*.id}"]
+  vpc_zone_identifier = aws_subnet.vault.*.id
 
   # Use a fixed-size cluster
-  min_size             = "${var.vault_cluster_size}"
-  max_size             = "${var.vault_cluster_size}"
-  desired_capacity     = "${var.vault_cluster_size}"
+  min_size             = var.vault_cluster_size
+  max_size             = var.vault_cluster_size
+  desired_capacity     = var.vault_cluster_size
   termination_policies = ["Default"]
 
-  target_group_arns         = ["${aws_lb_target_group.guardian_vault.arn}"]
+  target_group_arns         = [aws_lb_target_group.guardian_vault.arn]
   health_check_type         = "EC2"
   health_check_grace_period = 300
   wait_for_capacity_timeout = "10m"
@@ -23,13 +23,15 @@ resource "aws_autoscaling_group" "vault_cluster" {
       key                 = "Name"
       value               = "guardian-vault"
       propagate_at_launch = true
-    },{
+    },
+    {
       key                 = "Purpose"
       value               = "TxExecutorVault"
       propagate_at_launch = true
-    },{
+    },
+    {
       key                 = "Region"
-      value               = "${var.aws_region}"
+      value               = var.aws_region
       propagate_at_launch = true
     },
   ]
@@ -41,13 +43,13 @@ resource "aws_autoscaling_group" "vault_cluster" {
 
 resource "aws_launch_configuration" "vault_cluster" {
   name_prefix   = "guardian-vault-"
-  image_id      = "${var.vault_consul_ami == "" ? element(coalescelist(data.aws_ami.vault_consul.*.id, list("")), 0) : var.vault_consul_ami}"
-  instance_type = "${var.vault_instance_type}"
-  user_data     = "${data.template_file.user_data_vault_cluster.rendered}"
+  image_id      = var.vault_consul_ami == "" ? element(coalescelist(data.aws_ami.vault_consul.*.id, [""]), 0) : var.vault_consul_ami
+  instance_type = var.vault_instance_type
+  user_data     = data.template_file.user_data_vault_cluster.rendered
 
-  iam_instance_profile        = "${aws_iam_instance_profile.vault_cluster.name}"
-  key_name                    = "${aws_key_pair.auth.id}"
-  security_groups             = ["${aws_security_group.vault_cluster.id}"]
+  iam_instance_profile        = aws_iam_instance_profile.vault_cluster.name
+  key_name                    = aws_key_pair.auth.id
+  security_groups             = [aws_security_group.vault_cluster.id]
   placement_tenancy           = "default"
   associate_public_ip_address = true
 
@@ -78,7 +80,7 @@ resource "aws_launch_configuration" "vault_cluster" {
 resource "aws_security_group" "vault_cluster" {
   name_prefix = "guardian-vault-"
   description = "Security group for the guardian-vault launch configuration"
-  vpc_id      = "${var.aws_vpc}"
+  vpc_id      = var.aws_vpc
 
   # aws_launch_configuration.launch_configuration in this module sets create_before_destroy to true, which means
   # everything it depends on, including this resource, must set it as well, or you'll get cyclic dependency errors
@@ -95,7 +97,7 @@ resource "aws_security_group_rule" "allow_ssh_inbound_from_cidr_blocks" {
   protocol    = "tcp"
   cidr_blocks = ["0.0.0.0/0"]
 
-  security_group_id = "${aws_security_group.vault_cluster.id}"
+  security_group_id = aws_security_group.vault_cluster.id
 }
 
 resource "aws_security_group_rule" "allow_all_outbound" {
@@ -105,7 +107,7 @@ resource "aws_security_group_rule" "allow_all_outbound" {
   protocol    = "-1"
   cidr_blocks = ["0.0.0.0/0"]
 
-  security_group_id = "${aws_security_group.vault_cluster.id}"
+  security_group_id = aws_security_group.vault_cluster.id
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -119,7 +121,7 @@ resource "aws_security_group_rule" "allow_api_inbound_from_cidr_blocks" {
   protocol    = "tcp"
   cidr_blocks = ["0.0.0.0/0"]
 
-  security_group_id = "${aws_security_group.vault_cluster.id}"
+  security_group_id = aws_security_group.vault_cluster.id
 }
 
 resource "aws_security_group_rule" "allow_cluster_inbound_from_self" {
@@ -129,7 +131,7 @@ resource "aws_security_group_rule" "allow_cluster_inbound_from_self" {
   protocol  = "tcp"
   self      = true
 
-  security_group_id = "${aws_security_group.vault_cluster.id}"
+  security_group_id = aws_security_group.vault_cluster.id
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -141,7 +143,7 @@ resource "aws_security_group_rule" "allow_cluster_inbound_from_self" {
 resource "aws_iam_instance_profile" "vault_cluster" {
   name_prefix = "guardian-vault-"
   path        = "/"
-  role        = "${aws_iam_role.vault_cluster.name}"
+  role        = aws_iam_role.vault_cluster.name
 
   # aws_launch_configuration.launch_configuration in this module sets create_before_destroy to true, which means
   # everything it depends on, including this resource, must set it as well, or you'll get cyclic dependency errors
@@ -153,7 +155,7 @@ resource "aws_iam_instance_profile" "vault_cluster" {
 
 resource "aws_iam_role" "vault_cluster" {
   name_prefix        = "guardian-vault-"
-  assume_role_policy = "${data.aws_iam_policy_document.vault_cluster.json}"
+  assume_role_policy = data.aws_iam_policy_document.vault_cluster.json
 
   # aws_iam_instance_profile.instance_profile in this module sets create_before_destroy to true, which means
   # everything it depends on, including this resource, must set it as well, or you'll get cyclic dependency errors
@@ -181,13 +183,13 @@ data "aws_iam_policy_document" "vault_cluster" {
 # ---------------------------------------------------------------------------------------------------------------------
 resource "aws_s3_bucket" "guardian_vault" {
   bucket_prefix = "guardian-vault-"
-  force_destroy = "${var.force_destroy_s3_bucket}"
+  force_destroy = var.force_destroy_s3_bucket
 }
 
 resource "aws_iam_role_policy" "vault_s3" {
   name   = "vault_s3"
-  role   = "${aws_iam_role.vault_cluster.id}"
-  policy = "${data.aws_iam_policy_document.vault_s3.json}"
+  role   = aws_iam_role.vault_cluster.id
+  policy = data.aws_iam_policy_document.vault_s3.json
 }
 
 data "aws_iam_policy_document" "vault_s3" {
@@ -196,7 +198,7 @@ data "aws_iam_policy_document" "vault_s3" {
     actions = ["s3:*"]
 
     resources = [
-      "${aws_s3_bucket.guardian_vault.arn}",
+      aws_s3_bucket.guardian_vault.arn,
       "${aws_s3_bucket.guardian_vault.arn}/*",
     ]
   }
@@ -208,17 +210,17 @@ data "aws_iam_policy_document" "vault_s3" {
 # TODO: Get HTTP challenge working for faster provisioning and fewer permissions on vault instances
 resource "aws_iam_role_policy" "certbot_route53" {
   name   = "certbot_route53"
-  role   = "${aws_iam_role.vault_cluster.id}"
-  policy = "${data.aws_iam_policy_document.certbot_route53.json}"
+  role   = aws_iam_role.vault_cluster.id
+  policy = data.aws_iam_policy_document.certbot_route53.json
 }
 
 data "aws_iam_policy_document" "certbot_route53" {
   statement {
-    effect  = "Allow"
+    effect = "Allow"
     actions = [
-                "route53:ListHostedZones",
-                "route53:GetChange"
-              ]
+      "route53:ListHostedZones",
+      "route53:GetChange",
+    ]
 
     resources = ["*"]
   }

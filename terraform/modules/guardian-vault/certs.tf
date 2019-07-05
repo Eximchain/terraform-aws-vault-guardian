@@ -7,11 +7,11 @@ module "cert_tool" {
   ca_public_key_file_path = "${path.module}/certs/ca.crt.selfsigned.pem"
   public_key_file_path    = "${path.module}/certs/vault.crt.selfsigned.pem"
   private_key_file_path   = "${path.module}/certs/vault.key.selfsigned.pem"
-  owner                   = "${var.cert_owner}"
-  organization_name       = "${var.cert_org_name}"
+  owner                   = var.cert_owner
+  organization_name       = var.cert_org_name
   ca_common_name          = "guardian-vault cert authority"
   common_name             = "guardian cert network"
-  dns_names               = ["${local.custom_domain}", "localhost"]
+  dns_names               = [local.custom_domain, "localhost"]
   ip_addresses            = ["127.0.0.1"]
   validity_period_hours   = 8760
 }
@@ -20,13 +20,13 @@ module "cert_tool" {
 # LET'S ENCRYPT CERTIFICATES FOR VAULT REMOTE LISTENER
 # ---------------------------------------------------------------------------------------------------------------------
 provider "acme" {
-  version = "~> 1.1"
+  version = "~> 1.3.4"
 
-  server_url = "${var.letsencrypt_acme_server}"
+  server_url = var.letsencrypt_acme_server
 }
 
 provider "tls" {
-  version = "~> 1.2"
+  version = "~> 2.0.1"
 }
 
 resource "tls_private_key" "letsencrypt" {
@@ -35,13 +35,13 @@ resource "tls_private_key" "letsencrypt" {
 }
 
 resource "acme_registration" "letsencrypt_registration" {
-  account_key_pem = "${tls_private_key.letsencrypt.private_key_pem}"
-  email_address   = "${var.letsencrypt_webmaster}"
+  account_key_pem = tls_private_key.letsencrypt.private_key_pem
+  email_address   = var.letsencrypt_webmaster
 }
 
 resource "acme_certificate" "letsencrypt" {
-  account_key_pem = "${acme_registration.letsencrypt_registration.account_key_pem}"
-  common_name     = "${local.custom_domain}"
+  account_key_pem = acme_registration.letsencrypt_registration.account_key_pem
+  common_name     = local.custom_domain
   key_type        = "4096"
 
   dns_challenge {
@@ -63,49 +63,49 @@ resource "aws_s3_bucket" "vault_certs" {
 # ---------------------------------------------------------------------------------------------------------------------
 resource "aws_s3_bucket_object" "vault_selfsigned_ca_public_key" {
   key                    = "ca.crt.selfsigned.pem"
-  bucket                 = "${aws_s3_bucket.vault_certs.bucket}"
-  source                 = "${module.cert_tool.ca_public_key_file_path}"
+  bucket                 = aws_s3_bucket.vault_certs.bucket
+  source                 = module.cert_tool.ca_public_key_file_path
   server_side_encryption = "aws:kms"
 
-  depends_on = ["module.cert_tool"]
+  depends_on = [module.cert_tool]
 }
 
 resource "aws_s3_bucket_object" "vault_selfsigned_public_key" {
   key                    = "vault.crt.selfsigned.pem"
-  bucket                 = "${aws_s3_bucket.vault_certs.bucket}"
-  source                 = "${module.cert_tool.public_key_file_path}"
+  bucket                 = aws_s3_bucket.vault_certs.bucket
+  source                 = module.cert_tool.public_key_file_path
   server_side_encryption = "aws:kms"
 
-  depends_on = ["module.cert_tool"]
+  depends_on = [module.cert_tool]
 }
 
 resource "aws_s3_bucket_object" "vault_selfsigned_private_key" {
   key                    = "vault.key.selfsigned.pem"
-  bucket                 = "${aws_s3_bucket.vault_certs.bucket}"
-  source                 = "${module.cert_tool.private_key_file_path}"
+  bucket                 = aws_s3_bucket.vault_certs.bucket
+  source                 = module.cert_tool.private_key_file_path
   server_side_encryption = "aws:kms"
 
-  depends_on = ["module.cert_tool"]
+  depends_on = [module.cert_tool]
 }
 
 resource "aws_s3_bucket_object" "vault_letsencrypt_ca_public_key" {
   key                    = "chain.pem"
-  bucket                 = "${aws_s3_bucket.vault_certs.bucket}"
-  content                = "${acme_certificate.letsencrypt.issuer_pem}"
+  bucket                 = aws_s3_bucket.vault_certs.bucket
+  content                = acme_certificate.letsencrypt.issuer_pem
   server_side_encryption = "aws:kms"
 }
 
 resource "aws_s3_bucket_object" "vault_letsencrypt_public_key" {
   key                    = "cert.pem"
-  bucket                 = "${aws_s3_bucket.vault_certs.bucket}"
-  content                = "${acme_certificate.letsencrypt.certificate_pem}"
+  bucket                 = aws_s3_bucket.vault_certs.bucket
+  content                = acme_certificate.letsencrypt.certificate_pem
   server_side_encryption = "aws:kms"
 }
 
 resource "aws_s3_bucket_object" "vault_letsencrypt_private_key" {
   key                    = "privkey.pem"
-  bucket                 = "${aws_s3_bucket.vault_certs.bucket}"
-  content                = "${acme_certificate.letsencrypt.private_key_pem}"
+  bucket                 = aws_s3_bucket.vault_certs.bucket
+  content                = acme_certificate.letsencrypt.private_key_pem
   server_side_encryption = "aws:kms"
 }
 
@@ -130,9 +130,10 @@ resource "aws_iam_policy" "vault_cert_access" {
   }]
 }
 EOF
+
 }
 
 resource "aws_iam_role_policy_attachment" "vault_cert_access" {
-  role       = "${aws_iam_role.vault_cluster.id}"
-  policy_arn = "${aws_iam_policy.vault_cert_access.arn}"
+  role = aws_iam_role.vault_cluster.id
+  policy_arn = aws_iam_policy.vault_cert_access.arn
 }
